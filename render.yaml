@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: job_portal
+    name: hrms
     env: python
     buildCommand: "pip install poetry && poetry install"
-    startCommand: "poetry run gunicorn job_portal.wsgi:application --bind 0.0.0.0:$PORT"
+    startCommand: "poetry run gunicorn hrms.wsgi:application --bind 0.0.0.0:$PORT"
     envVars:
       - key: DATABASE_URL
         fromDatabase:

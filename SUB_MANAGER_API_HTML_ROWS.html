@@ -1,0 +1,489 @@
+<!-- Add these rows to api.html after Supervisor Dashboard section -->
+
+<!-- Sub-Manager Dashboard Section -->
+<tr>
+    <td colspan="7" class="section-header" style="background-color: #6f42c1;">🏢 Sub-Manager Dashboard</td>
+</tr>
+
+<!-- Company Overview -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/company-overview/</td>
+    <td><span class="method get">GET</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Get comprehensive sub-company overview<br>Params: month, year (optional)</td>
+    <td>-</td>
+    <td><pre class="response">{
+  "success": true,
+  "sub_manager": {
+    "id": 5,
+    "name": "Sub Manager Name",
+    "employee_code": "SM001"
+  },
+  "company": {
+    "id": 2,
+    "name": "Client Company Pvt Ltd",
+    "address": "123 Street, City",
+    "gst_number": "29AAGCI9587F1ZZ"
+  },
+  "data": {
+    "employees": {
+      "total": 50,
+      "active": 45,
+      "inactive": 3,
+      "left": 2,
+      "recent_joinings": 5,
+      "by_department": [
+        {"officialdetails__department": "IT", "count": 20},
+        {"officialdetails__department": "Sales", "count": 15}
+      ],
+      "by_designation": [
+        {"officialdetails__designation": "Developer", "count": 12},
+        {"officialdetails__designation": "Manager", "count": 8}
+      ]
+    },
+    "attendance": {
+      "month": 10,
+      "year": 2024,
+      "statistics": {
+        "present": 900,
+        "absent": 50,
+        "weekly_off": 200,
+        "holiday": 50,
+        "half_day": 10
+      },
+      "attendance_percentage": 94.74,
+      "total_records": 1210
+    },
+    "overtime": {
+      "month": 10,
+      "year": 2024,
+      "total_hours": 250.5,
+      "records_count": 80
+    },
+    "salary": {
+      "total_monthly_payroll": 25000000.0,
+      "average_salary": 555555.56,
+      "min_salary": 300000.0,
+      "max_salary": 1200000.0
+    }
+  }
+}</pre></td>
+</tr>
+
+<!-- Company Employees -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/company-employees/</td>
+    <td><span class="method get">GET</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Get all company employees<br>Params: department, designation, status (optional)</td>
+    <td>-</td>
+    <td><pre class="response">{
+  "success": true,
+  "sub_manager": {
+    "id": 5,
+    "name": "Sub Manager Name"
+  },
+  "company": {
+    "id": 2,
+    "name": "Client Company Pvt Ltd"
+  },
+  "total_employees": 45,
+  "employees": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "full_name": "John Doe",
+      "email": "john@company.com",
+      "mobile_number": "9876543210",
+      "role": "Employee",
+      "department": "IT",
+      "designation": "Developer",
+      "date_of_joining": "2023-01-15",
+      "status": "ACTIVE"
+    }
+  ]
+}</pre></td>
+</tr>
+
+<!-- Employee Details -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/employee-details/?employee_id=12</td>
+    <td><span class="method get">GET</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Get detailed employee information</td>
+    <td>-</td>
+    <td><pre class="response">{
+  "success": true,
+  "employee": {
+    "id": 12,
+    "employee_code": "EMP012",
+    "full_name": "John Doe",
+    "email": "john@company.com",
+    "mobile_number": "9876543210",
+    "role": "Employee",
+    "status": "ACTIVE",
+    "date_of_birth": "1990-05-15",
+    "gender": "M"
+  },
+  "official_details": {
+    "department": "IT",
+    "designation": "Senior Developer",
+    "date_of_joining": "2023-01-15",
+    "supervisor_name": "Jane Smith"
+  },
+  "salary": {
+    "CTC": 600000.0,
+    "net_salary": 537400.0
+  },
+  "recent_performance": {
+    "attendance_records": [
+      {"date": "2024-10-07", "status": "P"},
+      {"date": "2024-10-06", "status": "P"}
+    ],
+    "overtime_hours": 15.5
+  }
+}</pre></td>
+</tr>
+
+<!-- Attendance Management Section -->
+<tr>
+    <td colspan="7" class="section-header" style="background-color: #6f42c1;">📅 Attendance Management</td>
+</tr>
+
+<!-- Mark Attendance -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/mark-attendance/</td>
+    <td><span class="method post">POST</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Mark attendance for employee<br>Status: P/A/WO/H/HD</td>
+    <td><pre class="json-body">{
+  "employee_id": 12,
+  "date": "2024-10-07",
+  "status": "P"
+}</pre></td>
+    <td><pre class="response">{
+  "success": true,
+  "message": "Attendance marked successfully",
+  "data": {
+    "id": 145,
+    "employee": 12,
+    "date": "2024-10-07",
+    "status": "P"
+  }
+}</pre></td>
+</tr>
+
+<!-- Bulk Mark Attendance -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/bulk-mark-attendance/</td>
+    <td><span class="method post">POST</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Bulk attendance marking</td>
+    <td><pre class="json-body">{
+  "date": "2024-10-07",
+  "attendance_records": [
+    {"employee_id": 12, "status": "P"},
+    {"employee_id": 13, "status": "P"},
+    {"employee_id": 14, "status": "A"}
+  ]
+}</pre></td>
+    <td><pre class="response">{
+  "success": true,
+  "message": "Bulk attendance marking completed",
+  "summary": {
+    "created": 2,
+    "updated": 1,
+    "errors": 0
+  },
+  "errors": null
+}</pre></td>
+</tr>
+
+<!-- Attendance Report -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/attendance-report/?start_date=2024-10-01&end_date=2024-10-31</td>
+    <td><span class="method get">GET</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Get attendance report<br>Params: start_date, end_date (required), employee_id (optional)</td>
+    <td>-</td>
+    <td><pre class="response">{
+  "success": true,
+  "sub_manager": {
+    "id": 5,
+    "name": "Sub Manager Name"
+  },
+  "company": {
+    "id": 2,
+    "name": "Client Company Pvt Ltd"
+  },
+  "period": {
+    "start_date": "2024-10-01",
+    "end_date": "2024-10-31"
+  },
+  "total_employees": 45,
+  "data": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "employee_name": "John Doe",
+      "designation": "Developer",
+      "statistics": {
+        "present": 22,
+        "absent": 2,
+        "weekly_off": 4,
+        "holiday": 2,
+        "half_day": 1
+      },
+      "total_working_days": 25,
+      "attendance_percentage": 88.0
+    }
+  ]
+}</pre></td>
+</tr>
+
+<!-- Salary Management Section -->
+<tr>
+    <td colspan="7" class="section-header" style="background-color: #6f42c1;">💰 Salary Management</td>
+</tr>
+
+<!-- Create Salary Structure -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/create-salary-structure/</td>
+    <td><span class="method post">POST</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Create salary structure for employee</td>
+    <td><pre class="json-body">{
+  "employee_id": 12,
+  "CTC": 600000,
+  "basic": 300000,
+  "da": 50000,
+  "hra": 100000,
+  "conveyance": 20000,
+  "bonus": 30000,
+  "other_allowances": 100000,
+  "pf_deduction": 36000,
+  "esi_deduction": 12000,
+  "pt_deduction": 2400,
+  "lwf_deduction": 1200,
+  "insurance": 5000,
+  "advance": 0
+}</pre></td>
+    <td><pre class="response">{
+  "success": true,
+  "message": "Salary structure created successfully",
+  "data": {
+    "id": 1,
+    "employee": 12,
+    "CTC": 600000.0,
+    "basic": 300000.0,
+    "net_salary": 537400.0
+  }
+}</pre></td>
+</tr>
+
+<!-- Salary Report -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/salary-report/</td>
+    <td><span class="method get">GET</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Get salary report<br>Params: department (optional)</td>
+    <td>-</td>
+    <td><pre class="response">{
+  "success": true,
+  "sub_manager": {
+    "id": 5,
+    "name": "Sub Manager Name"
+  },
+  "company": {
+    "id": 2,
+    "name": "Client Company Pvt Ltd"
+  },
+  "total_employees": 45,
+  "total_annual_payroll": 25000000.0,
+  "average_salary": 555555.56,
+  "data": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "employee_name": "John Doe",
+      "department": "IT",
+      "designation": "Developer",
+      "CTC": 600000.0,
+      "net_salary": 537400.0
+    }
+  ]
+}</pre></td>
+</tr>
+
+<!-- Overtime Management Section -->
+<tr>
+    <td colspan="7" class="section-header" style="background-color: #6f42c1;">⏰ Overtime Management</td>
+</tr>
+
+<!-- Record Overtime -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/record-overtime/</td>
+    <td><span class="method post">POST</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Record employee overtime</td>
+    <td><pre class="json-body">{
+  "employee_id": 12,
+  "date": "2024-10-07",
+  "hours": 3.5
+}</pre></td>
+    <td><pre class="response">{
+  "success": true,
+  "message": "Overtime recorded successfully",
+  "data": {
+    "id": 45,
+    "employee": 12,
+    "date": "2024-10-07",
+    "hours": 3.5
+  }
+}</pre></td>
+</tr>
+
+<!-- Overtime Report -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/overtime-report/?start_date=2024-10-01&end_date=2024-10-31</td>
+    <td><span class="method get">GET</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Get overtime report</td>
+    <td>-</td>
+    <td><pre class="response">{
+  "success": true,
+  "sub_manager": {
+    "id": 5,
+    "name": "Sub Manager Name"
+  },
+  "company": {
+    "id": 2,
+    "name": "Client Company Pvt Ltd"
+  },
+  "period": {
+    "start_date": "2024-10-01",
+    "end_date": "2024-10-31"
+  },
+  "total_employees": 15,
+  "total_overtime_hours": 250.5,
+  "data": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "employee_name": "John Doe",
+      "designation": "Developer",
+      "total_overtime_hours": 28.5,
+      "records_count": 8
+    }
+  ]
+}</pre></td>
+</tr>
+
+<!-- Analytics Section -->
+<tr>
+    <td colspan="7" class="section-header" style="background-color: #6f42c1;">📊 Analytics & Reports</td>
+</tr>
+
+<!-- Company Analytics -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/company-analytics/</td>
+    <td><span class="method get">GET</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Get comprehensive company analytics<br>Params: year (optional)</td>
+    <td>-</td>
+    <td><pre class="response">{
+  "success": true,
+  "sub_manager": {
+    "id": 5,
+    "name": "Sub Manager Name"
+  },
+  "company": {
+    "id": 2,
+    "name": "Client Company Pvt Ltd"
+  },
+  "year": 2024,
+  "headcount": {
+    "total_active": 45,
+    "by_role": [
+      {"role": "Employee", "count": 35},
+      {"role": "Supervisor", "count": 10}
+    ],
+    "by_gender": [
+      {"gender": "M", "count": 30},
+      {"gender": "F", "count": 15}
+    ],
+    "by_department": [
+      {"officialdetails__department": "IT", "count": 20},
+      {"officialdetails__department": "Sales", "count": 15}
+    ]
+  },
+  "salary_analysis": {
+    "min_ctc": 300000.0,
+    "max_ctc": 1200000.0,
+    "avg_ctc": 555555.56,
+    "total_annual_payroll": 25000000.0
+  },
+  "attendance_trends": [
+    {
+      "month": "January 2024",
+      "present": 800,
+      "absent": 50
+    }
+  ],
+  "turnover": {
+    "joinings": 10,
+    "leavings": 5,
+    "turnover_rate": 11.11
+  }
+}</pre></td>
+</tr>
+
+<!-- Quick Actions Section -->
+<tr>
+    <td colspan="7" class="section-header" style="background-color: #6f42c1;">⚡ Quick Actions</td>
+</tr>
+
+<!-- Today Summary -->
+<tr style="background-color: lightgreen;">
+    <td class="endpoint">/api/sub-manager-dashboard/today-summary/</td>
+    <td><span class="method get">GET</span></td>
+    <td><span class="auth-required">yes(Sub-Manager)</span></td>
+    <td class="description">Get today's attendance summary</td>
+    <td>-</td>
+    <td><pre class="response">{
+  "success": true,
+  "sub_manager": {
+    "id": 5,
+    "name": "Sub Manager Name"
+  },
+  "company": {
+    "id": 2,
+    "name": "Client Company Pvt Ltd"
+  },
+  "date": "2024-10-07",
+  "summary": {
+    "total_employees": 45,
+    "present": 40,
+    "absent": 3,
+    "not_marked": 2
+  },
+  "employees_status": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "full_name": "John Doe",
+      "department": "IT",
+      "status": "Present",
+      "status_code": "P"
+    },
+    {
+      "employee_id": 13,
+      "employee_code": "EMP013",
+      "full_name": "Jane Smith",
+      "department": "Sales",
+      "status": "Not Marked",
+      "status_code": null
+    }
+  ]
+}</pre></td>
+</tr>

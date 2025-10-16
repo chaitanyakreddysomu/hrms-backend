@@ -19,7 +19,7 @@ def favicon_view(request):
         raise Http404()
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('core.urls')),
+    path('', include('core.urls')),
     
 
     # # Redirect /favicon.ico requests to the static favicon file (e.g., .jpg or .png)

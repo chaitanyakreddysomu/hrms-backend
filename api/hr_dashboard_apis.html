@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard APIs - HRMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        .section {
+            margin: 40px 0;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .api-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .api-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .method {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+        }
+
+        .method.get {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .method.post {
+            background: #28a745;
+            color: white;
+        }
+
+        .method.put {
+            background: #007bff;
+            color: white;
+        }
+
+        .method.delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .endpoint {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
+        .request-body, .response, .example-code {
+            margin: 15px 0;
+        }
+
+        h4 {
+            color: #667eea;
+            margin: 10px 0;
+            font-size: 1em;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border: 2px solid #0c5460;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .info-box h3 {
+            color: #0c5460;
+            margin-bottom: 15px;
+        }
+
+        .info-box p {
+            color: #0c5460;
+            line-height: 1.8;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .info-box li {
+            color: #0c5460;
+            margin: 8px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.1em;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            text-align: center;
+            color: #666;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .toc h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 HR Dashboard APIs</h1>
+            <p class="subtitle">Comprehensive HR Management System - Dashboard & Analytics</p>
+            <div>
+                <span class="badge">17 Endpoints</span>
+                <span class="badge">JWT Authentication</span>
+                <span class="badge">Role-Based Access</span>
+                <span class="badge">Real-time Analytics</span>
+            </div>
+        </header>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h3>📋 Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#dashboard-stats">Dashboard Statistics API</a></li>
+                <li><a href="#attendance">Attendance Management APIs (3)</a></li>
+                <li><a href="#salary">Salary Management APIs (3)</a></li>
+                <li><a href="#payslip">Payslip Management APIs (2)</a></li>
+                <li><a href="#overtime">Overtime Management APIs (2)</a></li>
+                <li><a href="#employee-status">Employee Status Management API</a></li>
+                <li><a href="#analytics">Analytics & Reports API</a></li>
+                <li><a href="#authentication">Authentication</a></li>
+            </ul>
+        </div>
+
+        <!-- Overview -->
+        <div id="overview" class="section">
+            <h2>📊 Overview</h2>
+            <p style="font-size: 1.1em; color: #666; margin-bottom: 20px;">
+                The HR Dashboard APIs provide comprehensive HR management capabilities including real-time statistics, 
+                attendance tracking, salary management, payslip generation, overtime management, and advanced analytics.
+            </p>
+
+            <div class="feature-list">
+                <div class="feature-item">📈 Real-time Dashboard Stats</div>
+                <div class="feature-item">👥 Attendance Management</div>
+                <div class="feature-item">💰 Salary Structure Control</div>
+                <div class="feature-item">📄 Automated Payslip Generation</div>
+                <div class="feature-item">⏰ Overtime Tracking</div>
+                <div class="feature-item">📊 Advanced Analytics</div>
+                <div class="feature-item">🔄 Employee Status Management</div>
+                <div class="feature-item">📱 Bulk Operations Support</div>
+            </div>
+
+            <div class="info-box" style="background: #f8d7da; border-color: #d9534f;">
+                <h3 style="color: #d9534f;">🔐 Access Control - STRICT ROLE-BASED</h3>
+                <p style="color: #721c24;">
+                    <strong>Who can access:</strong> <span style="font-size: 1.1em; font-weight: bold; color: #d9534f;">HR Role ONLY</span> ✅<br>
+                    <strong>Blocked Roles:</strong> Admin, Manager, Sub-Manager, Supervisor, Employee ❌<br>
+                    <strong>Authentication:</strong> JWT Bearer Token required for all endpoints<br>
+                    <strong>Permission Class:</strong> <code>IsHROnly</code><br>
+                    <strong>Base URL:</strong> <code>http://localhost:8000/api/hr-dashboard/</code>
+                </p>
+            </div>
+        </div>
+
+        <!-- Dashboard Statistics -->
+        <div id="dashboard-stats" class="section">
+            <h2>📊 Dashboard Statistics</h2>
+            
+            <div class="api-card">
+                <div class="method get">GET</div>
+                <div class="endpoint">/api/hr-dashboard/dashboard-stats/</div>
+                <p><strong>Get comprehensive dashboard statistics</strong></p>
+                
+                <div class="request-body">
+                    <h4>Query Parameters (All Optional):</h4>
+                    <pre>company_id: 5
+month: 10
+year: 2024</pre>
+                </div>
+
+                <div class="response">
+                    <h4>Response (200 OK):</h4>
+                    <pre>{
+  "success": true,
+  "data": {
+    "employees": {
+      "total": 150,
+      "active": 145,
+      "inactive": 5,
+      "by_department": [
+        {"department": "Engineering", "count": 60},
+        {"department": "Sales", "count": 40},
+        {"department": "HR", "count": 10}
+      ],
+      "by_role": [
+        {"role": "Employee", "count": 120},
+        {"role": "Manager", "count": 20},
+        {"role": "Admin", "count": 5}
+      ]
+    },
+    "attendance": {
+      "month": 10,
+      "year": 2024,
+      "statistics": {
+        "present": 2800,
+        "absent": 120,
+        "weekly_off": 600,
+        "holiday": 150,
+        "half_day": 30
+      },
+      "total_records": 3700
+    },
+    "salary": {
+      "total_payroll": 90000000.00,
+      "average_salary": 600000.00,
+      "employees_with_structure": 145
+    },
+    "payslips": {
+      "month": 10,
+      "year": 2024,
+      "generated": 140,
+      "pending": 5
+    },
+    "recent_activities": {
+      "new_joinings_30_days": 8,
+      "leavings": 3
+    },
+    "overtime": {
+      "month": 10,
+      "year": 2024,
+      "total_hours": 450.5,
+      "records_count": 85
+    }
+  }
+}</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>Python Example:</h4>
+                    <pre>import requests
+
+url = 'http://localhost:8000/api/hr-dashboard/dashboard-stats/'
+headers = {'Authorization': f'Bearer {hr_token}'}
+params = {'company_id': 5, 'month': 10, 'year': 2024}
+
+response = requests.get(url, headers=headers, params=params)
+stats = response.json()['data']
+
+print(f"Total Employees: {stats['employees']['total']}")
+print(f"Active: {stats['employees']['active']}")
+print(f"Total Payroll: ₹{stats['salary']['total_payroll']:,.2f}")</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>JavaScript Example:</h4>
+                    <pre>const params = new URLSearchParams({
+  company_id: 5,
+  month: 10,
+  year: 2024
+});
+
+const response = await fetch(
+  `http://localhost:8000/api/hr-dashboard/dashboard-stats/?${params}`,
+  { headers: { 'Authorization': `Bearer ${hrToken}` } }
+);
+
+const { data } = await response.json();
+console.log('Dashboard Stats:', data);</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Management -->
+        <div id="attendance" class="section">
+            <h2>👥 Attendance Management</h2>
+            
+            <div class="api-grid">
+                <!-- Mark Attendance -->
+                <div class="api-card">
+                    <div class="method post">POST</div>
+                    <div class="endpoint">/api/hr-dashboard/mark-attendance/</div>
+                    <p><strong>Mark attendance for an employee</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Request Body:</h4>
+                        <pre>{
+  "employee_id": 1,
+  "date": "2024-10-07",
+  "status": "P"
+}</pre>
+                        <p style="margin-top: 10px;"><strong>Status Values:</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li>P - Present</li>
+                            <li>A - Absent</li>
+                            <li>WO - Weekly Off</li>
+                            <li>H - Holiday</li>
+                            <li>HD - Half Day</li>
+                        </ul>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (201 Created):</h4>
+                        <pre>{
+  "success": true,
+  "message": "Attendance marked successfully",
+  "data": {
+    "id": 1,
+    "employee": 1,
+    "date": "2024-10-07",
+    "status": "P"
+  }
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>response = requests.post(
+    'http://localhost:8000/api/hr-dashboard/mark-attendance/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    json={
+        'employee_id': 1,
+        'date': '2024-10-07',
+        'status': 'P'
+    }
+)
+print(response.json()['message'])</pre>
+                    </div>
+                </div>
+
+                <!-- Bulk Mark Attendance -->
+                <div class="api-card">
+                    <div class="method post">POST</div>
+                    <div class="endpoint">/api/hr-dashboard/bulk-mark-attendance/</div>
+                    <p><strong>Mark attendance for multiple employees at once</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Request Body:</h4>
+                        <pre>{
+  "date": "2024-10-07",
+  "attendance_records": [
+    {"employee_id": 1, "status": "P"},
+    {"employee_id": 2, "status": "A"},
+    {"employee_id": 3, "status": "P"},
+    {"employee_id": 4, "status": "HD"}
+  ]
+}</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (200 OK):</h4>
+                        <pre>{
+  "success": true,
+  "message": "Bulk attendance marking completed",
+  "summary": {
+    "created": 2,
+    "updated": 2,
+    "errors": 0
+  },
+  "errors": null
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>JavaScript Example:</h4>
+                        <pre>const attendanceData = {
+  date: '2024-10-07',
+  attendance_records: [
+    {employee_id: 1, status: 'P'},
+    {employee_id: 2, status: 'A'},
+    {employee_id: 3, status: 'P'}
+  ]
+};
+
+const response = await fetch(
+  'http://localhost:8000/api/hr-dashboard/bulk-mark-attendance/',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${hrToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(attendanceData)
+  }
+);
+
+const result = await response.json();
+console.log(`Created: ${result.summary.created}, Updated: ${result.summary.updated}`);</pre>
+                    </div>
+                </div>
+
+                <!-- Attendance Report -->
+                <div class="api-card">
+                    <div class="method get">GET</div>
+                    <div class="endpoint">/api/hr-dashboard/attendance-report/</div>
+                    <p><strong>Get detailed attendance report for employees</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Query Parameters:</h4>
+                        <pre>start_date: 2024-10-01 (required)
+end_date: 2024-10-31 (required)
+employee_id: 1 (optional)
+company_id: 5 (optional)</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (200 OK):</h4>
+                        <pre>{
+  "success": true,
+  "period": {
+    "start_date": "2024-10-01",
+    "end_date": "2024-10-31"
+  },
+  "total_employees": 3,
+  "data": [
+    {
+      "employee_id": 1,
+      "employee_code": "EMP001",
+      "employee_name": "John Doe",
+      "department": "Engineering",
+      "statistics": {
+        "present": 22,
+        "absent": 2,
+        "weekly_off": 4,
+        "holiday": 2,
+        "half_day": 1
+      },
+      "total_working_days": 23
+    }
+  ]
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>params = {
+    'start_date': '2024-10-01',
+    'end_date': '2024-10-31',
+    'company_id': 5
+}
+
+response = requests.get(
+    'http://localhost:8000/api/hr-dashboard/attendance-report/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    params=params
+)
+
+report = response.json()
+for emp in report['data']:
+    print(f"{emp['employee_name']}: {emp['statistics']['present']} days present")</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Salary Management -->
+        <div id="salary" class="section">
+            <h2>💰 Salary Management</h2>
+            
+            <div class="api-grid">
+                <!-- Create Salary Structure -->
+                <div class="api-card">
+                    <div class="method post">POST</div>
+                    <div class="endpoint">/api/hr-dashboard/create-salary-structure/</div>
+                    <p><strong>Create salary structure for an employee</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Request Body:</h4>
+                        <pre>{
+  "employee_id": 1,
+  "CTC": 600000,
+  "basic": 300000,
+  "da": 50000,
+  "hra": 100000,
+  "conveyance": 20000,
+  "bonus": 30000,
+  "other_allowances": 100000,
+  "pf_deduction": 36000,
+  "esi_deduction": 12000,
+  "pt_deduction": 2400,
+  "lwf_deduction": 1200,
+  "insurance": 5000,
+  "advance": 0
+}</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (201 Created):</h4>
+                        <pre>{
+  "success": true,
+  "message": "Salary structure created successfully",
+  "data": {
+    "id": 1,
+    "employee": 1,
+    "CTC": 600000.00,
+    "basic": 300000.00,
+    "da": 50000.00,
+    "hra": 100000.00,
+    "conveyance": 20000.00,
+    "bonus": 30000.00,
+    "other_allowances": 100000.00,
+    "pf_deduction": 36000.00,
+    "esi_deduction": 12000.00,
+    "pt_deduction": 2400.00,
+    "lwf_deduction": 1200.00,
+    "insurance": 5000.00,
+    "advance": 0.00,
+    "net_salary": 537400.00
+  }
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>salary_data = {
+    'employee_id': 1,
+    'CTC': 600000,
+    'basic': 300000,
+    'da': 50000,
+    'hra': 100000,
+    'conveyance': 20000,
+    'bonus': 30000,
+    'other_allowances': 100000,
+    'pf_deduction': 36000,
+    'esi_deduction': 12000,
+    'pt_deduction': 2400,
+    'lwf_deduction': 1200,
+    'insurance': 5000,
+    'advance': 0
+}
+
+response = requests.post(
+    'http://localhost:8000/api/hr-dashboard/create-salary-structure/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    json=salary_data
+)
+print(response.json()['message'])</pre>
+                    </div>
+                </div>
+
+                <!-- Update Salary Structure -->
+                <div class="api-card">
+                    <div class="method put">PUT</div>
+                    <div class="endpoint">/api/hr-dashboard/update-salary-structure/</div>
+                    <p><strong>Update salary structure (records increment in history)</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Request Body:</h4>
+                        <pre>{
+  "employee_id": 1,
+  "CTC": 650000,
+  "basic": 325000,
+  "da": 55000,
+  "hra": 110000,
+  "conveyance": 22000,
+  "bonus": 35000,
+  "other_allowances": 103000
+}</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (200 OK):</h4>
+                        <pre>{
+  "success": true,
+  "message": "Salary structure updated successfully",
+  "data": {
+    "id": 1,
+    "employee": 1,
+    "CTC": 650000.00,
+    "basic": 325000.00,
+    "net_salary": 575400.00
+  },
+  "increment_recorded": true
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>JavaScript Example:</h4>
+                        <pre>const response = await fetch(
+  'http://localhost:8000/api/hr-dashboard/update-salary-structure/',
+  {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${hrToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      employee_id: 1,
+      CTC: 650000,
+      basic: 325000
+    })
+  }
+);
+
+const result = await response.json();
+console.log(result.message);
+console.log('Increment recorded:', result.increment_recorded);</pre>
+                    </div>
+                </div>
+
+                <!-- Get Salary Structure -->
+                <div class="api-card">
+                    <div class="method get">GET</div>
+                    <div class="endpoint">/api/hr-dashboard/get-salary-structure/</div>
+                    <p><strong>Get salary structure for an employee</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Query Parameters:</h4>
+                        <pre>employee_id: 1 (required)</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (200 OK):</h4>
+                        <pre>{
+  "success": true,
+  "data": {
+    "id": 1,
+    "employee": 1,
+    "CTC": 600000.00,
+    "basic": 300000.00,
+    "da": 50000.00,
+    "hra": 100000.00,
+    "conveyance": 20000.00,
+    "bonus": 30000.00,
+    "other_allowances": 100000.00,
+    "pf_deduction": 36000.00,
+    "esi_deduction": 12000.00,
+    "pt_deduction": 2400.00,
+    "lwf_deduction": 1200.00,
+    "insurance": 5000.00,
+    "advance": 0.00,
+    "net_salary": 537400.00
+  }
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>response = requests.get(
+    'http://localhost:8000/api/hr-dashboard/get-salary-structure/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    params={'employee_id': 1}
+)
+
+salary = response.json()['data']
+print(f"CTC: ₹{salary['CTC']:,.2f}")
+print(f"Net Salary: ₹{salary['net_salary']:,.2f}")</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payslip Management -->
+        <div id="payslip" class="section">
+            <h2>📄 Payslip Management</h2>
+            
+            <div class="api-grid">
+                <!-- Generate Payslip -->
+                <div class="api-card">
+                    <div class="method post">POST</div>
+                    <div class="endpoint">/api/hr-dashboard/generate-payslip/</div>
+                    <p><strong>Generate PDF payslip for an employee</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Request Body:</h4>
+                        <pre>{
+  "employee_id": 1,
+  "month": 10,
+  "year": 2024,
+  "working_days": 26,
+  "days_present": 24,
+  "overtime_hours": 5,
+  "advance_deduction": 5000,
+  "other_deductions": 1000
+}</pre>
+                        <p style="margin-top: 10px; color: #666;">
+                            <strong>Note:</strong> Salary is pro-rated based on attendance. PDF file is automatically generated and stored.
+                        </p>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (201 Created):</h4>
+                        <pre>{
+  "success": true,
+  "message": "Payslip generated successfully",
+  "data": {
+    "id": 1,
+    "employee": 1,
+    "month": 10,
+    "year": 2024,
+    "gross_salary": 46153.85,
+    "deductions": 8800.00,
+    "net_salary": 37353.85,
+    "pdf_file": "/media/payslips/payslip_EMP001_10_2024.pdf"
+  }
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>payslip_data = {
+    'employee_id': 1,
+    'month': 10,
+    'year': 2024,
+    'working_days': 26,
+    'days_present': 24,
+    'advance_deduction': 5000,
+    'other_deductions': 1000
+}
+
+response = requests.post(
+    'http://localhost:8000/api/hr-dashboard/generate-payslip/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    json=payslip_data
+)
+
+payslip = response.json()['data']
+print(f"Payslip generated: {payslip['pdf_file']}")
+print(f"Net Salary: ₹{payslip['net_salary']:,.2f}")</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>JavaScript Example:</h4>
+                        <pre>const response = await fetch(
+  'http://localhost:8000/api/hr-dashboard/generate-payslip/',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${hrToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      employee_id: 1,
+      month: 10,
+      year: 2024,
+      working_days: 26,
+      days_present: 24
+    })
+  }
+);
+
+const { data } = await response.json();
+console.log('PDF File:', data.pdf_file);</pre>
+                    </div>
+                </div>
+
+                <!-- Get Payslips -->
+                <div class="api-card">
+                    <div class="method get">GET</div>
+                    <div class="endpoint">/api/hr-dashboard/get-payslips/</div>
+                    <p><strong>Get payslips with optional filters</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Query Parameters (All Optional):</h4>
+                        <pre>employee_id: 1
+month: 10
+year: 2024
+company_id: 5</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (200 OK):</h4>
+                        <pre>{
+  "success": true,
+  "count": 2,
+  "data": [
+    {
+      "id": 1,
+      "employee": 1,
+      "month": 10,
+      "year": 2024,
+      "gross_salary": 46153.85,
+      "deductions": 8800.00,
+      "net_salary": 37353.85,
+      "pdf_file": "/media/payslips/payslip_EMP001_10_2024.pdf"
+    },
+    {
+      "id": 2,
+      "employee": 1,
+      "month": 9,
+      "year": 2024,
+      "gross_salary": 50000.00,
+      "deductions": 9200.00,
+      "net_salary": 40800.00,
+      "pdf_file": "/media/payslips/payslip_EMP001_9_2024.pdf"
+    }
+  ]
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>response = requests.get(
+    'http://localhost:8000/api/hr-dashboard/get-payslips/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    params={'employee_id': 1, 'year': 2024}
+)
+
+payslips = response.json()['data']
+for payslip in payslips:
+    print(f"Month {payslip['month']}: ₹{payslip['net_salary']:,.2f}")</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overtime Management -->
+        <div id="overtime" class="section">
+            <h2>⏰ Overtime Management</h2>
+            
+            <div class="api-grid">
+                <!-- Record Overtime -->
+                <div class="api-card">
+                    <div class="method post">POST</div>
+                    <div class="endpoint">/api/hr-dashboard/record-overtime/</div>
+                    <p><strong>Record overtime hours for an employee</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Request Body:</h4>
+                        <pre>{
+  "employee_id": 1,
+  "date": "2024-10-07",
+  "hours": 3.5
+}</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (201 Created):</h4>
+                        <pre>{
+  "success": true,
+  "message": "Overtime recorded successfully",
+  "data": {
+    "id": 1,
+    "employee": 1,
+    "date": "2024-10-07",
+    "hours": 3.5
+  }
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>response = requests.post(
+    'http://localhost:8000/api/hr-dashboard/record-overtime/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    json={
+        'employee_id': 1,
+        'date': '2024-10-07',
+        'hours': 3.5
+    }
+)
+print(response.json()['message'])</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>JavaScript Example:</h4>
+                        <pre>const response = await fetch(
+  'http://localhost:8000/api/hr-dashboard/record-overtime/',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${hrToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      employee_id: 1,
+      date: '2024-10-07',
+      hours: 3.5
+    })
+  }
+);
+
+const result = await response.json();
+console.log(result.message);</pre>
+                    </div>
+                </div>
+
+                <!-- Overtime Report -->
+                <div class="api-card">
+                    <div class="method get">GET</div>
+                    <div class="endpoint">/api/hr-dashboard/overtime-report/</div>
+                    <p><strong>Get comprehensive overtime report</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Query Parameters:</h4>
+                        <pre>start_date: 2024-10-01 (required)
+end_date: 2024-10-31 (required)
+employee_id: 1 (optional)
+company_id: 5 (optional)</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (200 OK):</h4>
+                        <pre>{
+  "success": true,
+  "period": {
+    "start_date": "2024-10-01",
+    "end_date": "2024-10-31"
+  },
+  "total_employees": 3,
+  "total_overtime_hours": 125.5,
+  "data": [
+    {
+      "employee_id": 1,
+      "employee_code": "EMP001",
+      "employee_name": "John Doe",
+      "total_overtime_hours": 45.5,
+      "records_count": 12
+    },
+    {
+      "employee_id": 2,
+      "employee_code": "EMP002",
+      "employee_name": "Jane Smith",
+      "total_overtime_hours": 38.0,
+      "records_count": 10
+    }
+  ]
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>params = {
+    'start_date': '2024-10-01',
+    'end_date': '2024-10-31',
+    'company_id': 5
+}
+
+response = requests.get(
+    'http://localhost:8000/api/hr-dashboard/overtime-report/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    params=params
+)
+
+report = response.json()
+print(f"Total OT Hours: {report['total_overtime_hours']}")
+for emp in report['data']:
+    print(f"{emp['employee_name']}: {emp['total_overtime_hours']} hours")</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employee Status Management -->
+        <div id="employee-status" class="section">
+            <h2>🔄 Employee Status Management</h2>
+            
+            <div class="api-card">
+                <div class="method put">PUT</div>
+                <div class="endpoint">/api/hr-dashboard/update-employee-status/</div>
+                <p><strong>Update employee status (ACTIVE, LEFT, TERMINATED)</strong></p>
+                
+                <div class="request-body">
+                    <h4>Request Body:</h4>
+                    <pre>{
+  "employee_id": 1,
+  "status": "LEFT",
+  "remarks": "Resigned for better opportunity"
+}</pre>
+                    <p style="margin-top: 10px;"><strong>Valid Status Values:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li>ACTIVE - Currently working</li>
+                        <li>LEFT - Resigned/Left the company</li>
+                        <li>TERMINATED - Terminated by company</li>
+                    </ul>
+                </div>
+
+                <div class="response">
+                    <h4>Response (200 OK):</h4>
+                    <pre>{
+  "success": true,
+  "message": "Employee status updated from ACTIVE to LEFT",
+  "data": {
+    "employee_id": 1,
+    "employee_name": "John Doe",
+    "old_status": "ACTIVE",
+    "new_status": "LEFT"
+  }
+}</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>Python Example:</h4>
+                    <pre>response = requests.put(
+    'http://localhost:8000/api/hr-dashboard/update-employee-status/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    json={
+        'employee_id': 1,
+        'status': 'LEFT',
+        'remarks': 'Resigned'
+    }
+)
+
+result = response.json()
+print(result['message'])</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>JavaScript Example:</h4>
+                    <pre>const response = await fetch(
+  'http://localhost:8000/api/hr-dashboard/update-employee-status/',
+  {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${hrToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      employee_id: 1,
+      status: 'LEFT',
+      remarks: 'Resigned'
+    })
+  }
+);
+
+const result = await response.json();
+console.log(result.message);</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics -->
+        <div id="analytics" class="section">
+            <h2>📊 Analytics & Reports</h2>
+            
+            <div class="api-card">
+                <div class="method get">GET</div>
+                <div class="endpoint">/api/hr-dashboard/analytics/</div>
+                <p><strong>Get comprehensive HR analytics and trends</strong></p>
+                
+                <div class="request-body">
+                    <h4>Query Parameters (All Optional):</h4>
+                    <pre>company_id: 5
+year: 2024</pre>
+                </div>
+
+                <div class="response">
+                    <h4>Response (200 OK):</h4>
+                    <pre>{
+  "success": true,
+  "year": 2024,
+  "headcount": {
+    "total_active": 145,
+    "by_role": [
+      {"role": "Employee", "count": 120},
+      {"role": "Manager", "count": 20},
+      {"role": "Admin", "count": 5}
+    ],
+    "by_gender": [
+      {"gender": "M", "count": 95},
+      {"gender": "F", "count": 48},
+      {"gender": "O", "count": 2}
+    ]
+  },
+  "salary_analysis": {
+    "min_ctc": 300000.00,
+    "max_ctc": 2500000.00,
+    "avg_ctc": 625000.00,
+    "total_annual_payroll": 90625000.00
+  },
+  "attendance_trends": [
+    {
+      "month": "January 2024",
+      "present": 2800,
+      "absent": 120
+    },
+    {
+      "month": "February 2024",
+      "present": 2650,
+      "absent": 110
+    }
+  ],
+  "turnover": {
+    "joinings": 28,
+    "leavings": 12,
+    "turnover_rate": 8.27
+  }
+}</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>Python Example:</h4>
+                    <pre>response = requests.get(
+    'http://localhost:8000/api/hr-dashboard/analytics/',
+    headers={'Authorization': f'Bearer {hr_token}'},
+    params={'company_id': 5, 'year': 2024}
+)
+
+analytics = response.json()
+print(f"Total Active Employees: {analytics['headcount']['total_active']}")
+print(f"Average CTC: ₹{analytics['salary_analysis']['avg_ctc']:,.2f}")
+print(f"Turnover Rate: {analytics['turnover']['turnover_rate']:.2f}%")</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>JavaScript Example:</h4>
+                    <pre>const params = new URLSearchParams({
+  company_id: 5,
+  year: 2024
+});
+
+const response = await fetch(
+  `http://localhost:8000/api/hr-dashboard/analytics/?${params}`,
+  { headers: { 'Authorization': `Bearer ${hrToken}` } }
+);
+
+const analytics = await response.json();
+
+// Display attendance trends
+analytics.attendance_trends.forEach(trend => {
+  console.log(`${trend.month}: ${trend.present} present, ${trend.absent} absent`);
+});
+
+// Display salary insights
+console.log('Salary Range:', 
+  analytics.salary_analysis.min_ctc, 
+  '-', 
+  analytics.salary_analysis.max_ctc
+);</pre>
+                </div>
+            </div>
+
+            <div class="info-box" style="background: #d4edda; border-color: #155724; margin-top: 30px;">
+                <h3 style="color: #155724;">💡 Analytics Use Cases</h3>
+                <ul style="color: #155724;">
+                    <li><strong>Workforce Planning:</strong> Use headcount by role/department for hiring decisions</li>
+                    <li><strong>Budget Planning:</strong> Total payroll helps in financial forecasting</li>
+                    <li><strong>Attendance Monitoring:</strong> Identify trends and patterns in employee attendance</li>
+                    <li><strong>Retention Analysis:</strong> Track turnover rate to improve retention strategies</li>
+                    <li><strong>Diversity Metrics:</strong> Monitor gender distribution across organization</li>
+                    <li><strong>Salary Benchmarking:</strong> Compare min/max/avg salaries for market alignment</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Authentication -->
+        <div id="authentication" class="section">
+            <h2>🔐 Authentication</h2>
+            
+            <div class="info-box">
+                <h3>JWT Token Authentication</h3>
+                <p>All HR Dashboard APIs require JWT authentication. Include the Bearer token in the Authorization header.</p>
+            </div>
+
+            <div class="api-card">
+                <h4>How to Include Token:</h4>
+                <pre>Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...</pre>
+                
+                <h4 style="margin-top: 20px;">Python Example:</h4>
+                <pre>headers = {
+    'Authorization': f'Bearer {your_jwt_token}',
+    'Content-Type': 'application/json'
+}
+
+response = requests.get(
+    'http://localhost:8000/api/hr-dashboard/dashboard-stats/',
+    headers=headers
+)</pre>
+
+                <h4 style="margin-top: 20px;">JavaScript Example:</h4>
+                <pre>const headers = {
+    'Authorization': `Bearer ${yourJwtToken}`,
+    'Content-Type': 'application/json'
+};
+
+const response = await fetch(
+    'http://localhost:8000/api/hr-dashboard/dashboard-stats/',
+    { headers }
+);</pre>
+
+                <h4 style="margin-top: 20px;">cURL Example:</h4>
+                <pre>curl -X GET "http://localhost:8000/api/hr-dashboard/dashboard-stats/" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json"</pre>
+            </div>
+        </div>
+
+        <!-- API Summary Stats -->
+        <div class="section">
+            <h2>📈 API Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>17</h3>
+                    <p>Total Endpoints</p>
+                </div>
+                <div class="stat-card">
+                    <h3>8</h3>
+                    <p>GET Requests</p>
+                </div>
+                <div class="stat-card">
+                    <h3>6</h3>
+                    <p>POST Requests</p>
+                </div>
+                <div class="stat-card">
+                    <h3>2</h3>
+                    <p>PUT Requests</p>
+                </div>
+            </div>
+
+            <div class="info-box" style="background: #f8d7da; border-color: #721c24; margin-top: 30px;">
+                <h3 style="color: #721c24;">⚠️ Important Notes</h3>
+                <ul style="color: #721c24;">
+                    <li><strong>Date Format:</strong> Always use YYYY-MM-DD format for dates</li>
+                    <li><strong>Decimal Values:</strong> Use decimal format for hours (e.g., 3.5 for 3 hours 30 minutes)</li>
+                    <li><strong>Salary Components:</strong> All salary amounts should be annual figures</li>
+                    <li><strong>Pro-rated Calculations:</strong> Payslips automatically calculate pro-rated salaries based on attendance</li>
+                    <li><strong>Increment History:</strong> Automatically recorded when CTC changes in salary structure</li>
+                    <li><strong>PDF Generation:</strong> Payslips generate PDF files automatically, stored in media/payslips/</li>
+                    <li><strong>Company Filtering:</strong> Use company_id to filter data for specific companies/sub-companies</li>
+                    <li><strong>Bulk Operations:</strong> Use bulk APIs for better performance when handling multiple records</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>HR Dashboard APIs Documentation</strong></p>
+            <p>Version 1.0 | Last Updated: October 7, 2024</p>
+            <p style="margin-top: 10px;">For technical support or API issues, contact your system administrator.</p>
+            <p style="margin-top: 5px; color: #667eea;">
+                <strong>Related Documentation:</strong> 
+                <a href="hr_admin_employee_data_apis.html" style="color: #667eea;">Employee Data Management APIs</a> | 
+                <a href="employee_dashboard_apis.html" style="color: #667eea;">Employee Dashboard APIs</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,348 @@
+{
+    "success": true,
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU5NzYxMDEwLCJpYXQiOjE3NTk3MzIyMTEsImp0aSI6ImNjZTM0Yjc5MzhhYzQ3MTM5NWZkNDhiNTI1ZGYyOTRlIiwidXNlcl9pZCI6InVzZXJfSDUyN3dpTi1yayJ9.MgR1wx7iCix0h3D4zNL8nl-KE4lJAzdtrfGeN34fjgo",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MDMzNzAxMCwiaWF0IjoxNzU5NzMyMjEwLCJqdGkiOiI3Yjc5NzEwYmM5NWY0ZjA4YmZiNWM2N2YwMTY3MDBiZCIsInVzZXJfaWQiOiJ1c2VyX0g1Mjd3aU4tcmsifQ.6wrLPY0G89gOCLSW71DDY0omDXS0dq7g5ZnhywJDkeU",
+    "user": {
+        "id": "user_H527wiN-rk",
+        "username": "admin",
+        "email": "admin@example.com",
+        "first_name": "Admin",
+        "last_name": "User",
+        "is_superuser": true,
+        "groups": [
+            "Admin"
+        ]
+    },
+    "employee": {
+        "id": 1,
+        "main_company_name": "RMS (RADIANT Manpower Services)",
+        "full_name": "Admin User",
+        "employee_code": "ADMIN001",
+        "date_of_birth": "01/01/1990",
+        "gender": "M",
+        "marital_status": "S",
+        "mobile_number": "9876543210",
+        "email": "admin@example.com",
+        "current_address": "Admin Office",
+        "permanent_address": "Admin Office",
+        "role": "Admin",
+        "status": "ACTIVE",
+        "photo": null,
+        "client_code": null,
+        "main_company": 1,
+        "sub_company": null
+    },
+    "main_company": null,
+    "sub_company": null,
+    "all_main_companies": [
+        {
+            "id": 1,
+            "sub_companies_count": 1,
+            "name": "RMS (RADIANT Manpower Services)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZW",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 2,
+            "sub_companies_count": 1,
+            "name": "IMS (InLine Manpower Services Pvt Ltd)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZX",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 3,
+            "sub_companies_count": 0,
+            "name": "KVS Manpower Solutions",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZY",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 8,
+            "sub_companies_count": 0,
+            "name": "SuperTech Main Company",
+            "address": "Main HQ, Bangalore",
+            "gst_number": "29XYZ9999F1Z9",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 18,
+            "sub_companies_count": 0,
+            "name": "MainCompany Inc.",
+            "address": "City Tower, Mumbai",
+            "gst_number": "29XYZ9876F1Z1",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 19,
+            "sub_companies_count": 0,
+            "name": "SUBSUBCompany Inc.",
+            "address": "City Tower, Mumbai",
+            "gst_number": "29XYZ9876F1Z1",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 26,
+            "sub_companies_count": 1,
+            "name": "New Main Company Ltd",
+            "address": "123 Main St, City, State, Country",
+            "gst_number": "29AAGCI9587F1ZZ",
+            "is_main_company": true,
+            "parent_company": null
+        }
+    ]
+},
+
+// hr
+
+
+{
+    "success": true,
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU5NzYxMDg3LCJpYXQiOjE3NTk3MzIyODcsImp0aSI6IjRjYjM4ODFlZjhiYzRiNjlhZGExMDU2MGVkNjIwOGI4IiwidXNlcl9pZCI6InVzZXJfSUpnQyRIeTFDISJ9.6SeWh9jVv2xCU-ZX4E2JYNJUzEoDIgC8V1CuSkH4rmk",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MDMzNzA4NywiaWF0IjoxNzU5NzMyMjg3LCJqdGkiOiIyY2Q0Yzc0NjMyOTU0NDI2YmQzZTAyN2ZkMmRkMDg2OCIsInVzZXJfaWQiOiJ1c2VyX0lKZ0MkSHkxQyEifQ.N46MPVdKOmp8T8gjAUEaHXezl1VTbSD3awUeKOvh2Bg",
+    "user": {
+        "id": "user_IJgC$Hy1C!",
+        "username": "hr.account",
+        "email": "hr.account@company.com",
+        "first_name": "hr.account",
+        "last_name": "",
+        "is_superuser": false,
+        "groups": [
+            "HR"
+        ]
+    },
+    "employee": {
+        "id": 18,
+        "sub_company_name": "Client Sub Company Pvt Ltd",
+        "full_name": "hr.account",
+        "employee_code": "EMP_27_002",
+        "date_of_birth": "15/05/1990",
+        "gender": "M",
+        "marital_status": "S",
+        "mobile_number": "9876543210",
+        "email": "hr.account@company.com",
+        "current_address": "123 Street, City",
+        "permanent_address": "123 Street, City",
+        "role": "HR",
+        "status": "ACTIVE",
+        "photo": null,
+        "client_code": null,
+        "main_company": null,
+        "sub_company": 27
+    },
+    "main_company": null,
+    "sub_company": {
+        "id": 27,
+        "parent_company_name": "RMS (RADIANT Manpower Services)",
+        "sub_companies_count": 0,
+        "name": "Client Sub Company Pvt Ltd",
+        "address": "456 Client St, Client City",
+        "gst_number": "29BBGCI9587F1ZZ",
+        "is_main_company": false,
+        "parent_company": 1,
+        "parent_company_details": {
+            "id": 1,
+            "sub_companies_count": 1,
+            "name": "RMS (RADIANT Manpower Services)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZW",
+            "is_main_company": true,
+            "parent_company": null
+        }
+    },
+    "all_main_companies": [
+        {
+            "id": 1,
+            "sub_companies_count": 1,
+            "name": "RMS (RADIANT Manpower Services)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZW",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 2,
+            "sub_companies_count": 1,
+            "name": "IMS (InLine Manpower Services Pvt Ltd)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZX",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 3,
+            "sub_companies_count": 0,
+            "name": "KVS Manpower Solutions",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZY",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 8,
+            "sub_companies_count": 0,
+            "name": "SuperTech Main Company",
+            "address": "Main HQ, Bangalore",
+            "gst_number": "29XYZ9999F1Z9",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 18,
+            "sub_companies_count": 0,
+            "name": "MainCompany Inc.",
+            "address": "City Tower, Mumbai",
+            "gst_number": "29XYZ9876F1Z1",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 19,
+            "sub_companies_count": 0,
+            "name": "SUBSUBCompany Inc.",
+            "address": "City Tower, Mumbai",
+            "gst_number": "29XYZ9876F1Z1",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 26,
+            "sub_companies_count": 1,
+            "name": "New Main Company Ltd",
+            "address": "123 Main St, City, State, Country",
+            "gst_number": "29AAGCI9587F1ZZ",
+            "is_main_company": true,
+            "parent_company": null
+        }
+    ]
+}
+
+
+{
+    "success": true,
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU5NzYxMTE1LCJpYXQiOjE3NTk3MzIzMTYsImp0aSI6IjJmYmUzZjRhNTNhOTQyNWViZWEzMjQ4ZTM1MmE5MzExIiwidXNlcl9pZCI6InVzZXJfbnY5LTFKbWpXZSJ9.teHLxWjfYLDv1koXkRAZtuVbBQKv9KCU2szSXdOfOtA",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2MDMzNzExNSwiaWF0IjoxNzU5NzMyMzE1LCJqdGkiOiI2NTAxMjE4ODgzMGQ0ZGJlOGYzYzlkYjNiMDQ0NjllYSIsInVzZXJfaWQiOiJ1c2VyX252OS0xSm1qV2UifQ.-kwJGeHmmLu0W8ZPEWEN3vsyZ0u6O6c2O266EPW5aGQ",
+    "user": {
+        "id": "user_nv9-1JmjWe",
+        "username": "employee.account",
+        "email": "employee.account@company.com",
+        "first_name": "Employee.account",
+        "last_name": "",
+        "is_superuser": false,
+        "groups": [
+            "Employee"
+        ]
+    },
+    "employee": {
+        "id": 19,
+        "sub_company_name": "Client Sub Company Pvt Ltd",
+        "full_name": "Employee.account",
+        "employee_code": "EMP_27_202",
+        "date_of_birth": "15/05/1990",
+        "gender": "M",
+        "marital_status": "S",
+        "mobile_number": "9876542210",
+        "email": "employee.account@company.com",
+        "current_address": "123 Street, City",
+        "permanent_address": "123 Street, City",
+        "role": "Employee",
+        "status": "ACTIVE",
+        "photo": null,
+        "client_code": null,
+        "main_company": null,
+        "sub_company": 27
+    },
+    "main_company": null,
+    "sub_company": {
+        "id": 27,
+        "parent_company_name": "RMS (RADIANT Manpower Services)",
+        "sub_companies_count": 0,
+        "name": "Client Sub Company Pvt Ltd",
+        "address": "456 Client St, Client City",
+        "gst_number": "29BBGCI9587F1ZZ",
+        "is_main_company": false,
+        "parent_company": 1,
+        "parent_company_details": {
+            "id": 1,
+            "sub_companies_count": 1,
+            "name": "RMS (RADIANT Manpower Services)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZW",
+            "is_main_company": true,
+            "parent_company": null
+        }
+    },
+    "all_main_companies": [
+        {
+            "id": 1,
+            "sub_companies_count": 1,
+            "name": "RMS (RADIANT Manpower Services)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZW",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 2,
+            "sub_companies_count": 1,
+            "name": "IMS (InLine Manpower Services Pvt Ltd)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZX",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 3,
+            "sub_companies_count": 0,
+            "name": "KVS Manpower Solutions",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZY",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 8,
+            "sub_companies_count": 0,
+            "name": "SuperTech Main Company",
+            "address": "Main HQ, Bangalore",
+            "gst_number": "29XYZ9999F1Z9",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 18,
+            "sub_companies_count": 0,
+            "name": "MainCompany Inc.",
+            "address": "City Tower, Mumbai",
+            "gst_number": "29XYZ9876F1Z1",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 19,
+            "sub_companies_count": 0,
+            "name": "SUBSUBCompany Inc.",
+            "address": "City Tower, Mumbai",
+            "gst_number": "29XYZ9876F1Z1",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 26,
+            "sub_companies_count": 1,
+            "name": "New Main Company Ltd",
+            "address": "123 Main St, City, State, Country",
+            "gst_number": "29AAGCI9587F1ZZ",
+            "is_main_company": true,
+            "parent_company": null
+        }
+    ]
+}

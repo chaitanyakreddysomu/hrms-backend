@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-Manager Dashboard APIs - HRMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #764ba2;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        .warning-box {
+            background: #f8d7da;
+            border: 2px solid #d9534f;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box h3 {
+            color: #d9534f;
+            margin-bottom: 10px;
+        }
+
+        .warning-box p {
+            color: #721c24;
+        }
+
+        .api-list {
+            margin: 40px 0;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #764ba2;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .api-endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #764ba2;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-right: 10px;
+        }
+
+        .method.get {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .method.post {
+            background: #28a745;
+            color: white;
+        }
+
+        .endpoint-url {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
+        .description {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.85em;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.1em;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏢 Sub-Manager Dashboard APIs</h1>
+            <p class="subtitle">Sub-Company Management & Employee Oversight System</p>
+            <div>
+                <span class="badge">14 Endpoints</span>
+                <span class="badge">JWT Authentication</span>
+                <span class="badge">Company-Focused</span>
+                <span class="badge">Sub-Manager Only</span>
+            </div>
+        </header>
+
+        <div class="warning-box">
+            <h3>🔐 Access Control - STRICT ROLE-BASED</h3>
+            <p>
+                <strong>Who can access:</strong> <span style="font-size: 1.1em; font-weight: bold; color: #d9534f;">Sub-Manager Role ONLY</span> ✅<br>
+                <strong>Blocked Roles:</strong> HR, Supervisor, Admin, Manager, Employee ❌<br>
+                <strong>Authentication:</strong> JWT Bearer Token required<br>
+                <strong>Permission Class:</strong> <code>IsSubManager</code><br>
+                <strong>Scope:</strong> Access limited to sub-company employees only<br>
+                <strong>Base URL:</strong> <code>http://localhost:8000/api/sub-manager-dashboard/</code>
+            </p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>14</h3>
+                <p>Total Endpoints</p>
+            </div>
+            <div class="stat-card">
+                <h3>7</h3>
+                <p>GET Requests</p>
+            </div>
+            <div class="stat-card">
+                <h3>7</h3>
+                <p>POST Requests</p>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <h2>✨ Key Features</h2>
+        <div class="feature-grid">
+            <div class="feature-item">🏢 Company Overview</div>
+            <div class="feature-item">👥 Employee Management</div>
+            <div class="feature-item">📅 Attendance Tracking</div>
+            <div class="feature-item">💰 Salary Management</div>
+            <div class="feature-item">⏰ Overtime Management</div>
+            <div class="feature-item">📊 Analytics & Reports</div>
+            <div class="feature-item">⚡ Quick Actions</div>
+            <div class="feature-item">🔄 Bulk Operations</div>
+        </div>
+
+        <!-- API Documentation -->
+        <h2>📚 API Endpoints</h2>
+
+        <!-- Company Overview -->
+        <h3 style="color: #764ba2; margin-top: 40px;">🏢 Company Overview</h3>
+        
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <strong>Company Overview</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/company-overview/</div>
+            <p class="description">Get comprehensive overview of sub-company with statistics, employee counts, attendance, overtime, and salary data.</p>
+            <p><strong>Query Parameters:</strong> month (optional), year (optional)</p>
+            <p><strong>Response:</strong></p>
+            <pre>{
+  "success": true,
+  "sub_manager": {...},
+  "company": {...},
+  "data": {
+    "employees": {
+      "total": 50,
+      "active": 45,
+      "by_department": [...],
+      "by_designation": [...]
+    },
+    "attendance": {...},
+    "overtime": {...},
+    "salary": {...}
+  }
+}</pre>
+        </div>
+
+        <!-- Employee Management -->
+        <h3 style="color: #764ba2; margin-top: 40px;">👥 Employee Management</h3>
+
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <strong>Company Employees</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/company-employees/</div>
+            <p class="description">Get list of all employees in the sub-company with filtering options.</p>
+            <p><strong>Query Parameters:</strong> department, designation, status (all optional)</p>
+        </div>
+
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <strong>Employee Details</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/employee-details/?employee_id=12</div>
+            <p class="description">Get detailed information about a specific employee including salary, attendance, and performance.</p>
+            <p><strong>Query Parameters:</strong> employee_id (required)</p>
+        </div>
+
+        <!-- Attendance Management -->
+        <h3 style="color: #764ba2; margin-top: 40px;">📅 Attendance Management</h3>
+
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <strong>Mark Attendance</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/mark-attendance/</div>
+            <p class="description">Mark attendance for a single employee.</p>
+            <p><strong>Request Body:</strong></p>
+            <pre>{
+  "employee_id": 12,
+  "date": "2024-10-07",
+  "status": "P"
+}</pre>
+            <p><strong>Status Values:</strong> P (Present), A (Absent), WO (Weekly Off), H (Holiday), HD (Half Day)</p>
+        </div>
+
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <strong>Bulk Mark Attendance</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/bulk-mark-attendance/</div>
+            <p class="description">Mark attendance for multiple employees at once.</p>
+            <p><strong>Request Body:</strong></p>
+            <pre>{
+  "date": "2024-10-07",
+  "attendance_records": [
+    {"employee_id": 12, "status": "P"},
+    {"employee_id": 13, "status": "A"}
+  ]
+}</pre>
+        </div>
+
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <strong>Attendance Report</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/attendance-report/?start_date=2024-10-01&end_date=2024-10-31</div>
+            <p class="description">Get detailed attendance report for a date range.</p>
+            <p><strong>Query Parameters:</strong> start_date (required), end_date (required), employee_id (optional)</p>
+        </div>
+
+        <!-- Salary Management -->
+        <h3 style="color: #764ba2; margin-top: 40px;">💰 Salary Management</h3>
+
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <strong>Create Salary Structure</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/create-salary-structure/</div>
+            <p class="description">Create salary structure for an employee with all components.</p>
+            <p><strong>Request Body:</strong> employee_id, CTC, basic, da, hra, conveyance, bonus, other_allowances, pf_deduction, esi_deduction, pt_deduction, lwf_deduction, insurance, advance</p>
+        </div>
+
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <strong>Salary Report</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/salary-report/</div>
+            <p class="description">Get comprehensive salary report for all company employees.</p>
+            <p><strong>Query Parameters:</strong> department (optional)</p>
+        </div>
+
+        <!-- Overtime Management -->
+        <h3 style="color: #764ba2; margin-top: 40px;">⏰ Overtime Management</h3>
+
+        <div class="api-endpoint">
+            <span class="method post">POST</span>
+            <strong>Record Overtime</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/record-overtime/</div>
+            <p class="description">Record overtime hours for an employee.</p>
+            <p><strong>Request Body:</strong></p>
+            <pre>{
+  "employee_id": 12,
+  "date": "2024-10-07",
+  "hours": 3.5
+}</pre>
+        </div>
+
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <strong>Overtime Report</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/overtime-report/?start_date=2024-10-01&end_date=2024-10-31</div>
+            <p class="description">Get overtime report for all employees in date range.</p>
+            <p><strong>Query Parameters:</strong> start_date (required), end_date (required)</p>
+        </div>
+
+        <!-- Analytics -->
+        <h3 style="color: #764ba2; margin-top: 40px;">📊 Analytics & Reports</h3>
+
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <strong>Company Analytics</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/company-analytics/</div>
+            <p class="description">Get comprehensive analytics including headcount, salary analysis, attendance trends, and turnover rates.</p>
+            <p><strong>Query Parameters:</strong> year (optional)</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <h3 style="color: #764ba2; margin-top: 40px;">⚡ Quick Actions</h3>
+
+        <div class="api-endpoint">
+            <span class="method get">GET</span>
+            <strong>Today Summary</strong>
+            <div class="endpoint-url">/api/sub-manager-dashboard/today-summary/</div>
+            <p class="description">Get today's attendance summary for quick overview of company status.</p>
+            <p><strong>Response includes:</strong> Total employees, present count, absent count, not marked count, and individual employee status</p>
+        </div>
+
+        <!-- Complete API List -->
+        <h2>📋 Complete API List</h2>
+        <div style="background: #f8f9fa; padding: 25px; border-radius: 10px;">
+            <pre style="background: #2d2d2d; color: #f8f8f2; padding: 20px;">Company Overview:
+  GET  /api/sub-manager-dashboard/company-overview/
+
+Employee Management:
+  GET  /api/sub-manager-dashboard/company-employees/
+  GET  /api/sub-manager-dashboard/employee-details/
+
+Attendance Management:
+  POST /api/sub-manager-dashboard/mark-attendance/
+  POST /api/sub-manager-dashboard/bulk-mark-attendance/
+  GET  /api/sub-manager-dashboard/attendance-report/
+
+Salary Management:
+  POST /api/sub-manager-dashboard/create-salary-structure/
+  GET  /api/sub-manager-dashboard/salary-report/
+
+Overtime Management:
+  POST /api/sub-manager-dashboard/record-overtime/
+  GET  /api/sub-manager-dashboard/overtime-report/
+
+Analytics & Reports:
+  GET  /api/sub-manager-dashboard/company-analytics/
+
+Quick Actions:
+  GET  /api/sub-manager-dashboard/today-summary/</pre>
+        </div>
+
+        <footer>
+            <p><strong>Sub-Manager Dashboard APIs Documentation</strong></p>
+            <p>Version 1.0 | Last Updated: October 7, 2024</p>
+            <p style="margin-top: 10px;">Designed for sub-company managers to oversee their organization effectively.</p>
+            <p style="margin-top: 10px; color: #764ba2;">
+                <strong>Related Documentation:</strong> 
+                <a href="hr_dashboard_apis.html" style="color: #764ba2;">HR Dashboard APIs</a> | 
+                <a href="supervisor_dashboard_apis.html" style="color: #764ba2;">Supervisor Dashboard APIs</a> |
+                <a href="api_documentation_index.html" style="color: #764ba2;">API Index</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

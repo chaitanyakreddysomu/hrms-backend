@@ -1,0 +1,3088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Payroll System API Documentation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #1a202c;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .content {
+            padding: 0;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        th {
+            background: #f7fafc;
+            color: #2d3748;
+            font-weight: 600;
+            padding: 16px 12px;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: top;
+        }
+        
+        tr:hover {
+            background-color: #f7fafc;
+        }
+        
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .method.get {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .method.post {
+            background-color: #fed7d7;
+            color: #742a2a;
+        }
+        .method.put {
+            background-color: #fff306;
+            color: #787d12;
+        }
+        
+        .auth-required {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .auth-required.yes {
+            background-color: #ffd6cc;
+            color: #c53030;
+        }
+        
+        .auth-required.no {
+            background-color: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .role {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 500;
+            margin: 2px;
+        }
+        
+        .role.admin {
+            background-color: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .role.hr {
+            background-color: #bee3f8;
+            color: #2a69ac;
+        }
+        
+        .role.supervisor {
+            background-color: #faf089;
+            color: #744210;
+        }
+        
+        .role.authenticated {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .endpoint {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            background-color: #f7fafc;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        
+        .json-body {
+            background-color: #f7fafc;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            margin: 0;
+        }
+        
+        .response {
+            background-color: #f0fff4;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            margin: 0;
+        }
+        
+        .section-header {
+            background-color: #4a5568;
+            color: white;
+            font-weight: 600;
+            padding: 12px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .description {
+            max-width: 200px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>HR Payroll System API</h1>
+            <p>Complete API Documentation with Authentication & Request/Response Details</p>
+        </div>
+        
+        <div class="content">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Method</th>
+                            <th>Auth Required</th>
+                            <th>Permissions</th>
+                            <th>Description</th>
+                            <th>Request Body</th>
+                            <th>Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Authentication Section -->
+                        <tr>
+                            <td colspan="7" class="section-header">Hirachy</td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/companies/hierarchy/</td>
+                            <td><span class="method get">Get</span></td>
+                            <td><span class="auth-required no">Yes Admin/Managers</span></td>
+                            <td>-</td>
+                            <td class="description">get main companies with subcompanies list</td>
+                            <td><pre class="json-body">-</pre></td>
+                            <td><pre class="response">{
+    "hierarchy": [
+        {
+            "main_company": {
+                "id": 1,
+                "sub_companies_count": 1,
+                "name": "RMS (RADIANT Manpower Services)",
+                "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+                "gst_number": "29AAGCI9587F1ZW",
+                "is_main_company": true,
+                "parent_company": null
+            },
+            "sub_companies": [
+                {
+                    "id": 27,
+                    "parent_company_name": "RMS (RADIANT Manpower Services)",
+                    "sub_companies_count": 0,
+                    "name": "Client Sub Company Pvt Ltd",
+                    "address": "456 Client St, Client City",
+                    "gst_number": "29BBGCI9587F1ZZ",
+                    "is_main_company": false,
+                    "parent_company": 1
+                }
+            ],
+            "sub_companies_count": 1
+        },
+        {
+            "main_company": {
+                "id": 2,
+                "sub_companies_count": 0,
+                "name": "IMS (InLine Manpower Services Pvt Ltd)",
+                "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+                "gst_number": "29AAGCI9587F1ZX",
+                "is_main_company": true,
+                "parent_company": null
+            },
+            "sub_companies": [],
+            "sub_companies_count": 0
+        },
+        {
+            "main_company": {
+                "id": 3,
+                "sub_companies_count": 0,
+                "name": "KVS Manpower Solutions",
+                "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+                "gst_number": "29AAGCI9587F1ZY",
+                "is_main_company": true,
+                "parent_company": null
+            },
+            "sub_companies": [],
+            "sub_companies_count": 0
+        },
+        {
+            "main_company": {
+                "id": 8,
+                "sub_companies_count": 0,
+                "name": "SuperTech Main Company",
+                "address": "Main HQ, Bangalore",
+                "gst_number": "29XYZ9999F1Z9",
+                "is_main_company": true,
+                "parent_company": null
+            },
+            "sub_companies": [],
+            "sub_companies_count": 0
+        },
+        {
+            "main_company": {
+                "id": 18,
+                "sub_companies_count": 0,
+                "name": "MainCompany Inc.",
+                "address": "City Tower, Mumbai",
+                "gst_number": "29XYZ9876F1Z1",
+                "is_main_company": true,
+                "parent_company": null
+            },
+            "sub_companies": [],
+            "sub_companies_count": 0
+        },
+        {
+            "main_company": {
+                "id": 19,
+                "sub_companies_count": 0,
+                "name": "SUBSUBCompany Inc.",
+                "address": "City Tower, Mumbai",
+                "gst_number": "29XYZ9876F1Z1",
+                "is_main_company": true,
+                "parent_company": null
+            },
+            "sub_companies": [],
+            "sub_companies_count": 0
+        },
+        {
+            "main_company": {
+                "id": 26,
+                "sub_companies_count": 1,
+                "name": "New Main Company Ltd",
+                "address": "123 Main St, City, State, Country",
+                "gst_number": "29AAGCI9587F1ZZ",
+                "is_main_company": true,
+                "parent_company": null
+            },
+            "sub_companies": [
+                {
+                    "id": 28,
+                    "parent_company_name": "New Main Company Ltd",
+                    "sub_companies_count": 0,
+                    "name": "Client Sub Company Pvt Ltd",
+                    "address": "456 Client St, Client City",
+                    "gst_number": "29BBGCI9587F1ZZ",
+                    "is_main_company": false,
+                    "parent_company": 26
+                }
+            ],
+            "sub_companies_count": 1
+        }
+    ],
+    "total_main_companies": 7
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/main-companies/</td>
+                            <td><span class="method get">Get</span></td>
+                            <td><span class="auth-required no">Yes Admin/Managers</span></td>
+                            <td>-</td>
+                            <td class="description">get main companies list</td>
+                            <td><pre class="json-body">-</pre></td>
+                            <td><pre class="response">{
+    "main_companies": [
+        {
+            "id": 1,
+            "sub_companies_count": 1,
+            "name": "RMS (RADIANT Manpower Services)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZW",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 2,
+            "sub_companies_count": 0,
+            "name": "IMS (InLine Manpower Services Pvt Ltd)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZX",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 3,
+            "sub_companies_count": 0,
+            "name": "KVS Manpower Solutions",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZY",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 8,
+            "sub_companies_count": 0,
+            "name": "SuperTech Main Company",
+            "address": "Main HQ, Bangalore",
+            "gst_number": "29XYZ9999F1Z9",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 18,
+            "sub_companies_count": 0,
+            "name": "MainCompany Inc.",
+            "address": "City Tower, Mumbai",
+            "gst_number": "29XYZ9876F1Z1",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 19,
+            "sub_companies_count": 0,
+            "name": "SUBSUBCompany Inc.",
+            "address": "City Tower, Mumbai",
+            "gst_number": "29XYZ9876F1Z1",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 26,
+            "sub_companies_count": 1,
+            "name": "New Main Company Ltd",
+            "address": "123 Main St, City, State, Country",
+            "gst_number": "29AAGCI9587F1ZZ",
+            "is_main_company": true,
+            "parent_company": null
+        }
+    ]
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/transfer-company/</td>
+                            <td><span class="method post">Post</span></td>
+                            <td><span class="auth-required no">Yes Admin/Managers</span></td>
+                            <td>-</td>
+                            <td class="description">transfer sub company to another main company</td>
+                            <td><pre class="json-body">{
+    "sub_company_id": 2,
+    "new_parent_company_id": 3
+}</pre></td>
+                            <td><pre class="response">need to test</pre></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="section-header">AUTHENTICATION</td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/auth/login/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required no">No</span></td>
+                            <td>-</td>
+                            <td class="description">User login with username/password</td>
+                            <td><pre class="json-body">{
+  "username": "string",
+  "password": "string"
+}</pre></td>
+                            <td><pre class="response">{
+  "access_token": "jwt_token",
+  "refresh_token": "refresh_token",
+  "user": {
+    "id": 1,
+    "username": "user",
+    "email": "user@example.com"
+  },
+  "main_companies": [...],
+  "current_client": null
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/auth/user_profile/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required no">No</span></td>
+                            <td>-</td>
+                            <td class="description">Get user profile information</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "user": {
+        "id": "user_H527wiN-rk",
+        "username": "admin",
+        "email": "admin@example.com",
+        "first_name": "Admin",
+        "last_name": "User",
+        "is_superuser": true,
+        "groups": [
+            "Admin"
+        ]
+    },
+    "employee": {
+        "id": 1,
+        "main_company_name": "RMS (RADIANT Manpower Services)",
+        "full_name": "Admin User",
+        "employee_code": "ADMIN001",
+        "date_of_birth": "01/01/1990",
+        "gender": "M",
+        "marital_status": "S",
+        "mobile_number": "9876543210",
+        "email": "admin@example.com",
+        "current_address": "Admin Office",
+        "permanent_address": "Admin Office",
+        "role": "Admin",
+        "status": "ACTIVE",
+        "photo": null,
+        "client_code": null,
+        "main_company": 1,
+        "sub_company": null
+    },
+    "main_company": null,
+    "sub_company": null
+}</pre></td>
+                            
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/token/refresh/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required no">No</span></td>
+                            <td>-</td>
+                            <td class="description">Refresh JWT access token</td>
+                            <td><pre class="json-body">{
+  "refresh": "refresh_token"
+}</pre></td>
+                            <td><pre class="response">{
+  "access": "new_access_token"
+}</pre></td>
+                        </tr>
+
+                        <!-- Company Management -->
+                        <tr>
+                            <td colspan="7" class="section-header">COMPANY MANAGEMENT</td>
+                        </tr>
+                        <tr  style="background-color: lightgreen;">
+                            <td class="endpoint">/api/companies/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">List all companies</td>
+                            <td>-</td>
+                            <td><pre class="response">[
+{
+    "count": 20,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 1,
+            "sub_companies_count": 1,
+            "name": "RMS (RADIANT Manpower Services)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZW",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        {
+            "id": 2,
+            "sub_companies_count": 1,
+            "name": "IMS (InLine Manpower Services Pvt Ltd)",
+            "address": "No 10, 1st Floor 100ft Outer Ring Road, 2nd Phase, Banashankari 3rd Stage Hosakerehalli, Bangaluru Urban, Karnataka, 560085",
+            "gst_number": "29AAGCI9587F1ZX",
+            "is_main_company": true,
+            "parent_company": null
+        },
+        
+        {
+            "id": 7,
+            "sub_companies_count": 0,
+            "name": "ABC Manufacturing Ltd",
+            "address": "123 Industrial Area, Bangalore",
+            "gst_number": "29ABCDE1234F1Z5",
+            "is_main_company": false,
+            "parent_company": null
+        },
+        {
+            "id": 8,
+            "sub_companies_count": 0,
+            "name": "SuperTech Main Company",
+            "address": "Main HQ, Bangalore",
+            "gst_number": "29XYZ9999F1Z9",
+            "is_main_company": true,
+            "parent_company": null
+        },
+       
+      
+    ]
+}
+]</pre></td>
+                        </tr>
+                        <tr style="background-color: orange;">
+                            <td class="endpoint">/api/companies/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Create new company(no need use <b> create_main_company</b> and <b> create_sub_company</b>)</td>
+                            <td><pre class="json-body">{
+  "name": "string",
+  "address": "string",
+  "gst_number": "string",
+  "is_main_company": false
+}</pre></td>
+                            <td><pre class="response">{
+  "id": 1,
+  "name": "Company Name",
+  "address": "Address",
+  "gst_number": "GST123",
+  "is_main_company": false
+}</pre></td>
+                        </tr>
+
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/companies/create_main_company/</td>
+                            <td><span class="method post">Post</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated Admin</span></td>
+                            <td class="description">create new manager for along with main company</td>
+                            <td>{
+    "company_data": {
+        "name": "New Main Company Ltd",
+        "address": "123 Main St, City, State, Country",
+        "gst_number": "29AAGCI9587F1ZZ"
+    },
+    "user_data": {
+        "username": "main_company_manager",
+        "email": "manager@maincompany.com",
+        "password": "secure_password_123",
+        "first_name": "John",
+        "last_name": "Manager",
+        "mobile_number": "9876543210",
+        "date_of_birth": "1985-06-15",
+        "gender": "M",
+        "marital_status": "M"
+    }
+}
+</td>
+                            <td><pre class="response">[
+  {
+    "success": true,
+    "message": "Main company created successfully",
+    "company": {
+        "id": 26,
+        "sub_companies_count": 0,
+        "name": "New Main Company Ltd",
+        "address": "123 Main St, City, State, Country",
+        "gst_number": "29AAGCI9587F1ZZ",
+        "is_main_company": true,
+        "parent_company": null
+    },
+    "user_account": {
+        "id": "user_16u-_Cz!XX",
+        "username": "main_company_manager",
+        "email": "manager@maincompany.com",
+        "role": "Manager",
+        "message": "Manager account created for main company"
+    }
+}
+]</pre></td></tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/companies/create_sub_company/</td>
+                            <td><span class="method post">Post</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated Manager/Admin</span></td>
+                            <td class="description">create new Subcompany in Main Company along with manager</td>
+                            <td>{
+    "parent_company_id": 1,
+    "company_data": {
+        "name": "Client Sub Company Pvt Ltd",
+        "address": "456 Client St, Client City",
+        "gst_number": "29BBGCI9587F1ZZ"
+    },
+    "settings_data": {
+        "esi_applicable": true,
+        "pf_applicable": true,
+        "pt_applicable": true,
+        "lwf_applicable": false,
+        "advance_applicable": true,
+        "insurance_applicable": true,
+        "service_charge_type": "PERCENTAGE",
+        "service_charge_value": 6.0
+    },
+    "user_data": {
+        "username": "client_manager",
+        "email": "manager@clientcompany.com",
+        "password": "client_secure_123",
+        "first_name": "Jane",
+        "last_name": "ClientManager",
+        "mobile_number": "9876543211",
+        "date_of_birth": "1988-03-20",
+        "gender": "F",
+        "marital_status": "S"
+    }
+}
+</td>
+                            <td><pre class="response">[
+  {
+    "success": true,
+    "message": "Sub-company created successfully",
+    "company": {
+        "id": 27,
+        "parent_company_name": "RMS (RADIANT Manpower Services)",
+        "sub_companies_count": 0,
+        "name": "Client Sub Company Pvt Ltd",
+        "address": "456 Client St, Client City",
+        "gst_number": "29BBGCI9587F1ZZ",
+        "is_main_company": false,
+        "parent_company": 1
+    },
+    "settings": {
+        "id": 11,
+        "esi_components": [],
+        "pf_components": [],
+        "pt_components": [],
+        "esi_applicable": true,
+        "pf_applicable": true,
+        "pt_applicable": true,
+        "lwf_applicable": false,
+        "advance_applicable": true,
+        "insurance_applicable": true,
+        "service_charge_type": "PERCENTAGE",
+        "service_charge_value": "6.00",
+        "client": 27
+    },
+    "parent_company": {
+        "id": 1,
+        "name": "RMS (RADIANT Manpower Services)"
+    },
+    "user_account": {
+        "id": "user_8.fA550rUK",
+        "username": "client_manager",
+        "email": "manager@clientcompany.com",
+        "message": "User account created successfully"
+    }
+}
+]</pre></td>
+                        </tr>
+                        <tr  style="background-color: lightgreen;">
+                            <td class="endpoint">/api/companies/26/sub_companies/</td>
+                            <td><span class="method get">Get</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated Manager/Admin</span></td>
+                            <td class="description">Get subcompanies list</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "main_company": {
+        "id": 26,
+        "sub_companies_count": 1,
+        "name": "New Main Company Ltd",
+        "address": "123 Main St, City, State, Country",
+        "gst_number": "29AAGCI9587F1ZZ",
+        "is_main_company": true,
+        "parent_company": null
+    },
+    "sub_companies": [
+        {
+            "id": 28,
+            "parent_company_name": "New Main Company Ltd",
+            "sub_companies_count": 0,
+            "name": "Client Sub Company Pvt Ltd",
+            "address": "456 Client St, Client City",
+            "gst_number": "29BBGCI9587F1ZZ",
+            "is_main_company": false,
+            "parent_company": 26
+        }
+    ],
+    "count": 1
+}</pre></td>
+                        </tr>
+                       
+                        <tr style="background-color: red;">
+                            <td class="endpoint">/api/companies/create_client/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Create client with settings</td>
+                            <td><pre class="json-body">{
+  "client_data": {
+    "name": "SuperTech Main Company",
+    "address": "Main HQ, Bangalore",
+    "gst_number": "29XYZ9999F1Z9",
+    "is_main_company": true
+  },
+  "user_data": {
+    "username": "supertechmanager",
+    "password": "StrongPass123",
+    "email": "manager@supertech.com",
+    "first_name": "John",
+    "last_name": "Doe",
+    "mobile_number": "9876543210"
+  }
+}
+
+</pre></td>
+                            <td><pre class="response">{
+  "client": {...},
+  "settings": {...}
+}</pre></td>
+                        </tr>
+
+                        <!-- Employee Management -->
+                        <tr>
+                            <td colspan="7" class="section-header">EMPLOYEE MANAGEMENT</td>
+                        </tr>
+                        <tr  style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employees/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">List employees with filters</td>
+                            <td>Query params: client_id, status</td>
+                            <td><pre class="response">[
+  {
+    "id": 1,
+    "full_name": "Employee Name",
+    "employee_code": "EMP001",
+    "status": "ACTIVE",
+    "role": "Employee"
+  }
+]</pre></td>
+                        </tr>
+                        <tr  style="background-color: lightgreen;">
+                            <td class="endpoint">/api/create-employee/</td>
+                            <td><span class="method post">Post</span></td>
+                            <td><span class="auth-required yes">Yes </span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role admin">Admin/manager/sub-manager</span></td>
+                            <td class="description">create employees (hr)</td>
+                            <td>{
+    "sub_company_id": 27,
+    "employee_data": {
+        "full_name": "hr.account",
+        "role": "HR",
+        "email": "hr.account@company.com",
+        "mobile_number": "9876543210",
+        "date_of_birth": "1990-05-15",
+        "gender": "M",
+        "marital_status": "S",
+        "current_address": "123 Street, City",
+        "permanent_address": "123 Street, City",
+        "employee_code": "EMP_27_002",
+        "create_user_account": true,
+        "password": "secure_password_123"
+    }
+}</td>
+                            <td><pre class="response">{
+    "success": true,
+    "message": "Employee created successfully",
+    "employee": {
+        "id": 18,
+        "sub_company_name": "Client Sub Company Pvt Ltd",
+        "full_name": "hr.account",
+        "employee_code": "EMP_27_002",
+        "date_of_birth": "15/05/1990",
+        "gender": "M",
+        "marital_status": "S",
+        "mobile_number": "9876543210",
+        "email": "hr.account@company.com",
+        "current_address": "123 Street, City",
+        "permanent_address": "123 Street, City",
+        "role": "HR",
+        "status": "ACTIVE",
+        "photo": null,
+        "client_code": null,
+        "main_company": null,
+        "sub_company": 27
+    },
+    "sub_company": {
+        "id": 27,
+        "parent_company_name": "RMS (RADIANT Manpower Services)",
+        "sub_companies_count": 0,
+        "name": "Client Sub Company Pvt Ltd",
+        "address": "456 Client St, Client City",
+        "gst_number": "29BBGCI9587F1ZZ",
+        "is_main_company": false,
+        "parent_company": 1
+    },
+    "user_account": {
+        "username": "hr.account",
+        "email": "hr.account@company.com",
+        "role": "HR"
+    }
+}</pre></td>
+                        </tr>
+                        <tr  style="background-color: lightgreen;">
+                            <td class="endpoint">/api/accessible-subcompanies/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role">Admin/Hr/Manager/Sub Manager</span></td>
+                            <td class="description">get accessable companies like for admin cxan access all 
+                              hr can access only that  </td>
+                            <td><pre class="json-body">-</pre></td>
+                            <td><pre class="response">{
+    "user_role": "HR",
+    "sub_companies": [
+        {
+            "id": 27,
+            "parent_company_name": "RMS (RADIANT Manpower Services)",
+            "sub_companies_count": 0,
+            "name": "Client Sub Company Pvt Ltd",
+            "address": "456 Client St, Client City",
+            "gst_number": "29BBGCI9587F1ZZ",
+            "is_main_company": false,
+            "parent_company": 1
+        }
+    ],
+    "count": 1
+}</pre></td>
+                        </tr>
+                        <tr  style="background-color: lightgreen;">
+                            <td class="endpoint">/api/creatable-roles/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role">Admin/Hr/Manager/Sub Manager</span></td>
+                            <td class="description">get creatable_roles (hr can create super visor and employee)  </td>
+                            <td><pre class="json-body">-</pre></td>
+                            <td><pre class="response">{
+    "user_role": "HR",
+    "creatable_roles": [
+        "Supervisor",
+        "Employee"
+    ]
+}</pre></td>
+                        </tr>
+                        <tr  style="background-color: lightgreen;">
+                            <td class="endpoint">/api/subcompany-employees/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role">Admin/Hr/Manager/Sub Manager</span></td>
+                            <td class="description">get users under you</td>
+                            <td><pre class="json-body">{
+    "user_role": "HR",
+    "employees": [
+        {
+            "id": 13,
+            "sub_company_name": "Client Sub Company Pvt Ltd",
+            "full_name": "Jane ClientManager",
+            "employee_code": "SUB_27_ADMIN",
+            "date_of_birth": "20/03/1988",
+            "gender": "F",
+            "marital_status": "S",
+            "mobile_number": "9876543211",
+            "email": "manager@clientcompany.com",
+            "current_address": "456 Client St, Client City",
+            "permanent_address": "456 Client St, Client City",
+            "role": "Manager",
+            "status": "ACTIVE",
+            "photo": null,
+            "client_code": null,
+            "main_company": null,
+            "sub_company": 27
+        },
+        {
+            "id": 17,
+            "sub_company_name": "Client Sub Company Pvt Ltd",
+            "full_name": "John Doe",
+            "employee_code": "EMP_27_001",
+            "date_of_birth": "15/05/1990",
+            "gender": "M",
+            "marital_status": "S",
+            "mobile_number": "9876543210",
+            "email": "john.doe@company.com",
+            "current_address": "123 Street, City",
+            "permanent_address": "123 Street, City",
+            "role": "HR",
+            "status": "ACTIVE",
+            "photo": null,
+            "client_code": null,
+            "main_company": null,
+            "sub_company": 27
+        },
+        {
+            "id": 18,
+            "sub_company_name": "Client Sub Company Pvt Ltd",
+            "full_name": "hr.account",
+            "employee_code": "EMP_27_002",
+            "date_of_birth": "15/05/1990",
+            "gender": "M",
+            "marital_status": "S",
+            "mobile_number": "9876543210",
+            "email": "hr.account@company.com",
+            "current_address": "123 Street, City",
+            "permanent_address": "123 Street, City",
+            "role": "HR",
+            "status": "ACTIVE",
+            "photo": null,
+            "client_code": null,
+            "main_company": null,
+            "sub_company": 27
+        }
+    ],
+    "count": 3
+}</pre></td>
+                            <td><pre class="response">{
+  "id": 1,
+  "full_name": "Employee Name",
+  "employee_code": "EMP001",
+  "status": "ACTIVE"
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: red;">
+                            <td class="endpoint">/api/employees/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Create new employee (getting this error {
+    "detail": "You do not have permission to perform this action."
+})</td>
+                            <td><pre class="json-body">{
+  "full_name": "string",
+  "employee_code": "string",
+  "date_of_birth": "YYYY-MM-DD",
+  "gender": "M/F",
+  "mobile_number": "string",
+  "email": "email@example.com",
+  "current_address": "string",
+  "role": "Employee",
+  "status": "ACTIVE"
+}</pre></td>
+                            <td><pre class="response">{
+  "id": 1,
+  "full_name": "Employee Name",
+  "employee_code": "EMP001",
+  "status": "ACTIVE"
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: orange;">
+                            <td class="endpoint">/api/employees/{id}/increment_salary/ (need to test)</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Employee salary increment</td>
+                            <td><pre class="json-body">{
+  "effective_date": "YYYY-MM-DD",
+  "salary_data": {
+    "basic": 15000,
+    "da": 2000,
+    "hra": 3000
+  }
+}</pre></td>
+                            <td><pre class="response">{
+  "id": 1,
+  "basic": 15000,
+  "da": 2000,
+  "hra": 3000
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: orange;">
+                            <td class="endpoint">/api/employees/{id}/terminate/(need to test)</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Terminate employee</td>
+                            <td><pre class="json-body">{}</pre></td>
+                            <td><pre class="response">{
+  "message": "Employee terminated successfully"
+}</pre></td>
+                        </tr>
+
+                        <!-- Attendance Management -->
+                        <tr>
+                            <td colspan="7" class="section-header">ATTENDANCE MANAGEMENT (Pending)</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/attendance/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Get attendance records</td>
+                            <td>Query params: client_id, month, year</td>
+                            <td><pre class="response">[
+  {
+    "id": 1,
+    "employee": 1,
+    "date": "2025-01-01",
+    "status": "P"
+  }
+]</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/attendance/bulk_upload/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Bulk attendance upload</td>
+                            <td><pre class="json-body">{
+  "month": 1,
+  "year": 2025,
+  "company_id": 1,
+  "attendance_data": [
+    {
+      "employee_id": 1,
+      "date": "2025-01-01",
+      "status": "P"
+    }
+  ]
+}</pre></td>
+                            <td><pre class="response">{
+  "message": "Attendance uploaded successfully. 10 records created."
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/attendance/monthly_summary/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Monthly attendance summary</td>
+                            <td>Query params: client_id, month, year (all required)</td>
+                            <td><pre class="response">[
+  {
+    "employee_id": 1,
+    "employee_name": "John Doe",
+    "total_days": 31,
+    "present_days": 26,
+    "absent_days": 3,
+    "overtime_hours": 8.0
+  }
+]</pre></td>
+                        </tr>
+
+                        <!-- Payroll Management -->
+                        <tr>
+                            <td colspan="7" class="section-header">PAYROLL MANAGEMENT (Pending)</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/salary-structures/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Generate salary structure</td>
+                            <td><pre class="json-body">{
+    "employee": 10,
+    "CTC": "500000.00",
+    "basic": "200000.00",
+    "da": "50000.00",
+    "hra": "100000.00",
+    "conveyance": "20000.00",
+    "bonus": "30000.00",
+    "other_allowances": "10000.00",
+    "pf_deduction": "24000.00",
+    "esi_deduction": "0.00",
+    "pt_deduction": "2400.00",
+    "lwf_deduction": "100.00",
+    "insurance": "5000.00",
+    "advance": "0.00"
+}</pre></td>
+                            <td><pre class="response">not checked</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/salary-structures/by_employee/?employee_id=19</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Generate employee salary statement</td>
+                            <td><pre class="json-body">-</pre></td>
+                            <td><pre class="response">{
+    "id": 10,
+    "employee_name": "Employee.account",
+    "net_salary": 378500.0,
+    "CTC": "500000.00",
+    "basic": "200000.00",
+    "da": "50000.00",
+    "hra": "100000.00",
+    "conveyance": "20000.00",
+    "bonus": "30000.00",
+    "other_allowances": "10000.00",
+    "pf_deduction": "24000.00",
+    "esi_deduction": "0.00",
+    "pt_deduction": "2400.00",
+    "lwf_deduction": "100.00",
+    "insurance": "5000.00",
+    "advance": "0.00",
+    "employee": 19
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/payroll/generate_salary_statement/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Generate employee salary statement</td>
+                            <td><pre class="json-body">{
+  "employee_id": 1,
+  "month": 1,
+  "year": 2025,
+  "days_payable": 26,
+  "overtime_hours": 8
+}</pre></td>
+                            <td><pre class="response">{
+  "id": 1,
+  "employee": 1,
+  "month": 1,
+  "year": 2025,
+  "gross_salary": 25000.0,
+  "deductions": 3500.0,
+  "net_salary": 21500.0
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/payroll/generate_invoice/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Generate client invoice</td>
+                            <td><pre class="json-body">{
+  "client_id": 1,
+  "month": 1,
+  "year": 2025
+}</pre></td>
+                            <td><pre class="response">{
+  "client_name": "Client Co",
+  "total_gross": 500000.0,
+  "service_charge": 30000.0,
+  "gst_amount": 95400.0,
+  "total_amount": 625400.0
+}</pre></td>
+                        </tr>
+
+                        <!-- Reports -->
+                        <tr>
+                            <td colspan="7" class="section-header">REPORTS (Pending)</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/reports/statutory_report/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Generate statutory reports</td>
+                            <td><pre class="json-body">{
+  "company_id": 1,
+  "month": 1,
+  "year": 2025,
+  "report_type": "ESI"
+}</pre></td>
+                            <td><pre class="response">{
+  "company_name": "Company",
+  "report_type": "ESI",
+  "data": [...],
+  "total_records": 50
+}</pre></td>
+                        </tr>
+
+                        <!-- Utility APIs -->
+                        <tr>
+                            <td colspan="7" class="section-header">UTILITY APIS</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/dashboard-stats/?client_id=27</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Dashboard statistics</td>
+                            <td>Query params: client_id (it is company id)</td>
+                            <td><pre class="response">{
+  "active_employees": 150,
+  "left_employees": 10,
+  "pending_payslips": 5,
+  "total_employees": 160
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/switch-client/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Switch client profile</td>
+                            <td><pre class="json-body">{
+  "client_id": 1
+}</pre></td>
+                            <td><pre class="response">{
+  "client": {...},
+  "settings": {...}
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/master-data/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Get master data for dropdowns</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+  "designations": [...],
+  "departments": [...],
+  "gender_choices": [...],
+  "salary_components": [...]
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/employee-search/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Search employees by name/code</td>
+                            <td>Query params: q (required), client_id</td>
+                            <td><pre class="response">[
+  {
+    "id": 1,
+    "full_name": "Employee",
+    "employee_code": "EMP001"
+  }
+]</pre></td>
+                        </tr>
+
+                        <!-- Supervisor APIs -->
+                        <tr>
+                            <td colspan="7" class="section-header">SUPERVISOR APIS</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/supervisor/assigned_employees/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Get assigned employees</td>
+                            <td>-</td>
+                            <td><pre class="response">[
+  {
+    "id": 1,
+    "full_name": "Employee",
+    "employee_code": "EMP001"
+  }
+]</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/supervisor/submit_attendance/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Submit attendance for approval</td>
+                            <td><pre class="json-body">{
+  "month": 1,
+  "year": 2025,
+  "client_id": 1,
+  "attendance_data": [...]
+}</pre></td>
+                            <td><pre class="response">{
+  "message": "Attendance submitted for approval"
+}</pre></td>
+                        </tr>
+
+                        <!-- HR APIs -->
+                        <tr>
+                            <td colspan="7" class="section-header">HR APIS</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/hr/pending_approvals/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Get pending approvals</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+  "pending_approvals": []
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/hr/approve_attendance/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Approve attendance</td>
+                            <td><pre class="json-body">{}</pre></td>
+                            <td><pre class="response">{
+  "message": "Attendance approved"
+}</pre></td>
+                        </tr>
+
+                        <!-- Admin Setup APIs -->
+                        <tr>
+                            <td colspan="7" class="section-header">ADMIN SETUP APIS</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/admin/status/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required no">No</span></td>
+                            <td>-</td>
+                            <td class="description">Check system initialization status</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+  "is_initialized": true,
+  "total_users": 5,
+  "total_companies": 3,
+  "total_employees": 150
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/admin/setup/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required no">No</span></td>
+                            <td>-</td>
+                            <td class="description">Complete admin setup</td>
+                            <td><pre class="json-body">{
+  "username": "admin",
+  "email": "admin@example.com",
+  "password": "admin123",
+  "first_name": "Admin",
+  "last_name": "User",
+  "employee_code": "ADMIN001"
+}</pre></td>
+                            <td><pre class="response">{
+  "message": "Admin setup completed",
+  "data": {
+    "admin_user": {...},
+    "groups_created": [...],
+    "companies_created": [...]
+  }
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/admin/quick-setup/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required no">No</span></td>
+                            <td>-</td>
+                            <td class="description">Quick setup with auto-generated credentials</td>
+                            <td><pre class="json-body">{
+  "email": "admin@example.com"
+}</pre></td>
+                            <td><pre class="response">{
+  "message": "Quick setup completed",
+  "credentials": {
+    "username": "admin",
+    "password": "auto_generated_password",
+    "email": "admin@example.com"
+  }
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/admin/sample-data/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required no">No</span></td>
+                            <td>-</td>
+                            <td class="description">Create sample client data</td>
+                            <td><pre class="json-body">{}</pre></td>
+                            <td><pre class="response">{
+  "message": "Sample data created",
+  "data": {
+    "clients_created": [...],
+    "hr_user_credentials": {...}
+  }
+}</pre></td>
+                        </tr>
+
+                        <!-- Download APIs -->
+                        <tr>
+                            <td colspan="7" class="section-header">DOWNLOAD APIS</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/download-payslip/{id}/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Download payslip PDF</td>
+                            <td>-</td>
+                            <td>PDF file download</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/export-report/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Export various reports</td>
+                            <td>Query params: report_type, format, client_id, month, year</td>
+                            <td><pre class="response">{
+  "message": "Report generated successfully"
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/attendance-template/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Download attendance template</td>
+                            <td>Query params: client_id, month, year (all required)</td>
+                            <td><pre class="response">{
+  "template_data": [...],
+  "headers": [...],
+  "total_employees": 50
+}</pre></td>
+                        </tr>
+
+                        <!-- Document Management -->
+                        <tr>
+                            <td colspan="7" class="section-header">DOCUMENT MANAGEMENT</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/documents/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">List documents</td>
+                            <td>Query params: employee_id, doc_type</td>
+                            <td><pre class="response">[
+  {
+    "id": 1,
+    "employee": 1,
+    "doc_type": "APPOINTMENT",
+    "issued_date": "2025-01-01"
+  }
+]</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/documents/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Create document</td>
+                            <td><pre class="json-body">{
+  "employee": 1,
+  "doc_type": "APPOINTMENT",
+  "file": "file_upload",
+  "issued_date": "2025-01-01"
+}</pre></td>
+                            <td><pre class="response">{
+  "id": 1,
+  "employee": 1,
+  "doc_type": "APPOINTMENT",
+  "issued_date": "2025-01-01"
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/documents/{id}/send_email/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Send document via email</td>
+                            <td><pre class="json-body">{
+  "email": "employee@example.com"
+}</pre></td>
+                            <td><pre class="response">{
+  "message": "Document sent successfully"
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/bulk-document-send/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Send documents to multiple employees</td>
+                            <td><pre class="json-body">{
+  "employee_ids": [1, 2, 3],
+  "doc_type": "APPOINTMENT",
+  "send_method": "EMAIL"
+}</pre></td>
+                            <td><pre class="response">{
+  "message": "Documents sent: 3, Failed: 0",
+  "sent_count": 3,
+  "failed_count": 0
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/generate-appointment/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Generate appointment order</td>
+                            <td><pre class="json-body">{
+  "employee_id": 1,
+  "template_data": {...}
+}</pre></td>
+                            <td><pre class="response">{
+  "id": 1,
+  "employee": 1,
+  "doc_type": "APPOINTMENT",
+  "issued_date": "2025-01-01"
+}</pre></td>
+                        </tr>
+
+                        <!-- Client Profile Settings -->
+                        <tr>
+                            <td colspan="7" class="section-header">CLIENT PROFILE SETTINGS</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/client-settings/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Get client profile settings</td>
+                            <td>Query params: client_id</td>
+                            <td><pre class="response">[
+  {
+    "id": 1,
+    "client": 1,
+    "esi_applicable": true,
+    "pf_applicable": true,
+    "service_charge_value": 6.0
+  }
+]</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/client-settings/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span> <span class="role hr">ClientProfile</span></td>
+                            <td class="description">Create client profile settings</td>
+                            <td><pre class="json-body">{
+  "client": 1,
+  "esi_applicable": true,
+  "pf_applicable": true,
+  "pt_applicable": true,
+  "service_charge_type": "PERCENTAGE",
+  "service_charge_value": 6.0
+}</pre></td>
+                            <td><pre class="response">{
+  "id": 1,
+  "client": 1,
+  "esi_applicable": true,
+  "pf_applicable": true,
+  "service_charge_value": 6.0
+}</pre></td>
+                        </tr>
+
+                        <!-- Additional Utility APIs -->
+                        <tr>
+                            <td colspan="7" class="section-header">ADDITIONAL UTILITY APIS</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/lock-salary-statement/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role authenticated">Authenticated</span></td>
+                            <td class="description">Lock salary statement</td>
+                            <td><pre class="json-body">{
+  "month": 1,
+  "year": 2025,
+  "client_id": 1
+}</pre></td>
+                            <td><pre class="response">{
+  "message": "Salary statement locked successfully"
+}</pre></td>
+                        </tr>
+
+                        <!-- Admin Specific APIs -->
+                        <tr>
+                            <td colspan="7" class="section-header">ADMIN SPECIFIC APIS</td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/admin/activity_log/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role admin">Admin</span></td>
+                            <td class="description">Get system activity log</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+  "activity_log": []
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/admin/unlock_statement/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required yes">Yes</span></td>
+                            <td><span class="role admin">Admin</span></td>
+                            <td class="description">Unlock locked salary statement</td>
+                            <td><pre class="json-body">{}</pre></td>
+                            <td><pre class="response">{
+  "message": "Statement unlocked"
+}</pre></td>
+                        </tr>
+
+                         <tr>
+                            <td colspan="7" class="section-header">User Profile data adding </td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-data-management/add-bank-details/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(admin,hr,manager,supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">add user bankdetails</td>
+                            <td>{ 
+    "employee_id": 19, 
+    "bank_name": "State Bank of India", 
+    "account_number": "1234567890123456", 
+    "ifsc_code": "SBIN0001234", 
+    "branch_name": "Main Branch, Bangalore" 
+
+}</td>
+                            <td><pre class="response">{
+    "message": "Bank details Added successfully",
+    "data": {
+        "id": 2,
+        "bank_name": "State Bank of India",
+        "account_number": "1234567890123456",
+        "ifsc_code": "SBIN0001234",
+        "branch_name": "Main Branch, Bangalore",
+        "employee": 19
+    }
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-data-management/update-bank-details/</td>
+                            <td><span class="method put">PUT</span></td>
+                            <td><span class="auth-required ">yes(admin,hr,manager,supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">edit user bankdetails</td>
+                            <td>{ 
+    "employee_id": 19, 
+    "bank_name": "State Bank of India", 
+    "account_number": "1234567890123456", 
+    "ifsc_code": "SBIN0001234", 
+    "branch_name": "Main Branch, Bangalore" 
+
+}</td>
+                            <td><pre class="response">{
+    "message": "Bank details updated successfully",
+    "data": {
+        "id": 2,
+        "bank_name": "State Bank of India",
+        "account_number": "1234567890123456",
+        "ifsc_code": "SBIN0001234",
+        "branch_name": "Main Branch, Bangalore",
+        "employee": 19
+    }
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-data-management/add-official-details/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(admin,hr,manager,supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">Add official details of user</td>
+                            <td>{ "employee_id": 19, "date_of_joining": "2024-01-15", "department": "IT Department", "designation": "Senior Developer", "location": "Bangalore Office", "supervisor_name": "Jane Smith", "salary_type": "MONTHLY" }
+</td>
+                            <td><pre class="response">{
+    "message": "Official details added successfully",
+    "data": {
+        "id": 2,
+        "date_of_joining": "15/01/2024",
+        "department": "IT Department",
+        "designation": "Senior Developer",
+        "location": "Bangalore Office",
+        "supervisor_name": "Jane Smith",
+        "salary_type": "MONTHLY",
+        "employee": 19
+    }
+}
+</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-data-management/update-official-details/</td>
+                            <td><span class="method put">PUT</span></td>
+                            <td><span class="auth-required ">yes(admin,hr,manager,supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">Update official details of user</td>
+                            <td>{ "employee_id": 19, "date_of_joining": "2024-01-15", "department": "IT Department", "designation": "Senior Developer", "location": "Bangalore Office", "supervisor_name": "Jane Smith", "salary_type": "MONTHLY" }
+</td>
+                            <td><pre class="response">{
+    "message": "Official details updated successfully",
+    "data": {
+        "id": 2,
+        "date_of_joining": "15/01/2024",
+        "department": "IT Department",
+        "designation": "Senior Developer",
+        "location": "Bangalore Office",
+        "supervisor_name": "Jane Smith",
+        "salary_type": "MONTHLY",
+        "employee": 19
+    }
+}
+</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-data-management/add-identity-documents/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(admin,hr,manager,supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">Add identity docs user</td>
+                            <td>{ "employee_id": 19, "aadhaar_number": "123456789012", "pan_number": "ABCDE1234F", "esi_number": "1234567890", "pf_uan_number": "100123456789", "passport_number": "A12345678" }</td>
+                            <td><pre class="response">{
+    "message": "Identity documents added successfully",
+    "data": {
+        "id": 1,
+        "aadhaar_number": "123456789012",
+        "pan_number": "ABCDE1234F",
+        "esi_number": "1234567890",
+        "pf_uan_number": "100123456789",
+        "passport_number": "A12345678",
+        "employee": 19
+    }
+}
+</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-data-management/add-identity-documents/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(admin,hr,manager,supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">Add identity docs user</td>
+                            <td>{ "employee_id": 19, "aadhaar_number": "123456789012", "pan_number": "ABCDE1234F", "esi_number": "1234567890", "pf_uan_number": "100123456789", "passport_number": "A12345678" }</td>
+                            <td><pre class="response">{
+    "message": "Identity documents added successfully",
+    "data": {
+        "id": 1,
+        "aadhaar_number": "123456789012",
+        "pan_number": "ABCDE1234F",
+        "esi_number": "1234567890",
+        "pf_uan_number": "100123456789",
+        "passport_number": "A12345678",
+        "employee": 19
+    }
+}
+</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-data-management/uodate-identity-documents/</td>
+                            <td><span class="method put">PUT</span></td>
+                            <td><span class="auth-required ">yes(admin,hr,manager,supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">update identity docs user</td>
+                            <td>{ "employee_id": 19, "aadhaar_number": "123456789012", "pan_number": "ABCDE1234F", "esi_number": "1234567890", "pf_uan_number": "100123456789", "passport_number": "A12345678" }</td>
+                            <td><pre class="response">{
+    "message": "Identity documents updated successfully",
+    "data": {
+        "id": 1,
+        "aadhaar_number": "123456789012",
+        "pan_number": "ABCDE1234F",
+        "esi_number": "1234567890",
+        "pf_uan_number": "100123456789",
+        "passport_number": "A12345678",
+        "employee": 19
+    }
+}
+</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-data-management/get-employee-details/?employee_id=19</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(admin,hr,manager,supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee details</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "employee": {
+        "id": 19,
+        "sub_company_name": "Client Sub Company Pvt Ltd",
+        "full_name": "Employee.account",
+        "employee_code": "EMP_27_202",
+        "date_of_birth": "15/05/1990",
+        "gender": "M",
+        "marital_status": "S",
+        "mobile_number": "9876542210",
+        "email": "employee.account@company.com",
+        "current_address": "123 Street, City",
+        "permanent_address": "123 Street, City",
+        "role": "Employee",
+        "status": "ACTIVE",
+        "photo": null,
+        "client_code": null,
+        "main_company": null,
+        "sub_company": 27
+    },
+    "official_details": {
+        "id": 2,
+        "date_of_joining": "15/01/2024",
+        "department": "IT Department",
+        "designation": "Senior Developer",
+        "location": "Bangalore Office",
+        "supervisor_name": "Jane Smith",
+        "salary_type": "MONTHLY",
+        "employee": 19
+    },
+    "identity_documents": {
+        "id": 1,
+        "aadhaar_number": "123456789012",
+        "pan_number": "ABCDE1234F",
+        "esi_number": "1234567890",
+        "pf_uan_number": "100123456789",
+        "passport_number": "A12345678",
+        "employee": 19
+    },
+    "bank_details": {
+        "id": 2,
+        "bank_name": "State Bank of India",
+        "account_number": "1234567890123456",
+        "ifsc_code": "SBIN0001234",
+        "branch_name": "Main Branch, Bangalore",
+        "employee": 19
+    }
+}</pre></td>
+                        </tr>
+
+                          <tr>
+                            <td colspan="7" class="section-header"> Employee APIs </td>
+                        </tr>
+                          <tr>
+                            <td colspan="7" class="section-header"> Dashboard APIs </td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-dashboard/stats/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee stats</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "employee_name": "Employee.account",
+    "employee_code": "EMP_27_202",
+    "profile_photo": null,
+    "present_days": 0,
+    "absent_days": 0,
+    "half_days": 0,
+    "ot_hours": 0.0,
+    "take_home_salary": 0.0,
+    "current_month": "October 2025"
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-dashboard/stats/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee stats</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "employee_name": "Employee.account",
+    "employee_code": "EMP_27_202",
+    "profile_photo": null,
+    "present_days": 0,
+    "absent_days": 0,
+    "half_days": 0,
+    "ot_hours": 0.0,
+    "take_home_salary": 0.0,
+    "current_month": "October 2025"
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-dashboard/notifications/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee notification</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "notifications": [],
+    "unread_count": 0
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/employee-dashboard/{id}/mark-read/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee notification</td>
+                            <td>-</td>
+                            <td><pre class="response">not tested</pre></td>
+                        </tr>
+                        <tr>
+                            <td class="endpoint">/api/employee-dashboard/mark-all-read/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee notification</td>
+                            <td>-</td>
+                            <td><pre class="response">not tested</pre></td>
+                        </tr>
+                         <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/attendance/checkin/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">check in employee</td>
+                            <td>{
+  "employee": 19,         // Employee ID
+  "date": "2025-10-10"     // Date (YYYY-MM-DD)
+}
+</td>
+                            <td><pre class="response">{
+    "success": true,
+    "check_in_time": "15:03:00.310974"
+}
+</pre></td>
+                        </tr>
+                         <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/attendance/checkout/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">check out employee</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "success": true,
+    "check_out_time": "15:02:10.756946",
+    "hours_worked": "0:01:03.171057"
+}
+</pre></td>
+                        </tr>
+                       <td colspan="7" class="section-header"> Profile APIs </td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-profile/personal-info/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee personal-info</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "full_name": "Employee.account",
+    "employee_code": "EMP_27_202",
+    "date_of_birth": "1990-05-15",
+    "gender": "Male",
+    "gender_code": "M",
+    "marital_status": "Single",
+    "marital_status_code": "S",
+    "photo": null
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-profile/contact-info/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee contact-info</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "mobile_number": "9876542210",
+    "email": "employee.account@company.com",
+    "current_address": "123 Street, City",
+    "permanent_address": "123 Street, City"
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-profile/official-info/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee official-info</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "date_of_joining": "2024-01-15",
+    "department": "IT Department",
+    "designation": "Senior Developer",
+    "location": "Bangalore Office",
+    "supervisor_name": "Jane Smith",
+    "salary_type": "MONTHLY"
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-profile/identity-docs/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee identity_documents</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "aadhaar_number": "123456789012",
+    "pan_number": "ABCDE1234F",
+    "esi_number": "1234567890",
+    "pf_uan_number": "100123456789",
+    "passport_number": "A12345678"
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-profile/bank-info/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee bank-info</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "bank_name": "State Bank of India",
+    "account_number": "1234567890123456",
+    "ifsc_code": "SBIN0001234",
+    "branch_name": "Main Branch, Bangalore"
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-profile/complete/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get employee complete details(all top mix)</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "personal_information": {
+        "full_name": "Employee.account",
+        "employee_code": "EMP_27_202",
+        "date_of_birth": "1990-05-15",
+        "gender": "Male",
+        "marital_status": "Single",
+        "photo": null
+    },
+    "contact_information": {
+        "mobile_number": "9876542210",
+        "email": "employee.account@company.com",
+        "current_address": "123 Street, City",
+        "permanent_address": "123 Street, City"
+    },
+    "official_information": {
+        "date_of_joining": "2024-01-15",
+        "department": "IT Department",
+        "designation": "Senior Developer",
+        "location": "Bangalore Office",
+        "supervisor_name": "Jane Smith",
+        "salary_type": "MONTHLY"
+    },
+    "identity_documents": {
+        "aadhaar_number": "123456789012",
+        "pan_number": "ABCDE1234F",
+        "esi_number": "1234567890",
+        "pf_uan_number": "100123456789"
+    },
+    "bank_information": {
+        "bank_name": "State Bank of India",
+        "account_number": "1234567890123456",
+        "ifsc_code": "SBIN0001234",
+        "branch_name": "Main Branch, Bangalore"
+    }
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-profile/request-update/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">request update to hr</td>
+                            <td>{ "field_name": "phone number", "requested_value": "9992227773", "reason": "new number" }
+</td>
+                            <td><pre class="response">{
+    "message": "Update request submitted successfully",
+    "request": {
+        "id": 1,
+        "employee": 19,
+        "employee_name": "Employee.account",
+        "employee_code": "EMP_27_202",
+        "field_name": "phone number",
+        "current_value": "None",
+        "requested_value": "9992227773",
+        "reason": "new number",
+        "status": "PENDING",
+        "requested_at": "07/10/2025 06:59:58",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "remarks": ""
+    }
+}</pre></td>
+                        </tr>
+                         <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/employee-profile/update-requests/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(employee)</span></td>
+                            <td>-</td>
+                            <td class="description">get update request status</td>
+                            <td>-</td>
+                            <td><pre class="response">[
+    {
+        "id": 1,
+        "employee": 19,
+        "employee_name": "Employee.account",
+        "employee_code": "EMP_27_202",
+        "field_name": "phone number",
+        "current_value": "None",
+        "requested_value": "9992227773",
+        "reason": "new number",
+        "status": "PENDING",
+        "requested_at": "07/10/2025 06:59:58",
+        "reviewed_by": null,
+        "reviewed_at": null,
+        "remarks": ""
+    }
+]</pre></td>
+                        </tr>
+                        <tr>
+
+                            <td colspan="7"  class="section-header">http://127.0.0.1:5500/employee_dashboard_apis.html check for more api for employee</tr>
+                        </tr>
+
+
+                        <tr>
+                            <td colspan="7"  class="section-header">Hr dashboard all apis </tr>
+
+                        </tr>
+                        <tr>
+
+                            <td colspan="7" class="section-header" style="background-color: blueviolet;">Dashboard Statistics</td>
+                        </tr>
+  <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/dashboard-stats/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(hr)</span></td>
+                            <td>-</td>
+                            <td class="description">get dashboard stats</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "success": true,
+    "data": {
+        "employees": {
+            "total": 19,
+            "active": 19,
+            "inactive": 0,
+            "by_department": [
+                {
+                    "department": "IT Department",
+                    "count": 1
+                }
+            ],
+            "by_role": [
+                {
+                    "role": "Admin",
+                    "count": 1
+                },
+                {
+                    "role": "Manager",
+                    "count": 8
+                },
+                {
+                    "role": "Sub-Manager",
+                    "count": 1
+                },
+                {
+                    "role": "Employee",
+                    "count": 1
+                },
+                {
+                    "role": "HR",
+                    "count": 8
+                }
+            ]
+        },
+        "attendance": {
+            "month": 10,
+            "year": 2025,
+            "statistics": {
+                "present": 0,
+                "absent": 0,
+                "weekly_off": 0,
+                "holiday": 0,
+                "half_day": 0
+            },
+            "total_records": 0
+        },
+        "salary": {
+            "total_payroll": 9000000.0,
+            "average_salary": 500000.0,
+            "employees_with_structure": 18
+        },
+        "payslips": {
+            "month": 10,
+            "year": 2025,
+            "generated": 0,
+            "pending": 19
+        },
+        "recent_activities": {
+            "new_joinings_30_days": 0,
+            "leavings": 0
+        },
+        "overtime": {
+            "month": 10,
+            "year": 2025,
+            "total_hours": 0.0,
+            "records_count": 0
+        }
+    }
+}</pre></td>
+                        </tr>
+  <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/dashboard-stats/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td>company_id, month, year (optional)</td>
+                            <td class="description">Get comprehensive dashboard statistics</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "success": true,
+    "data": {
+        "employees": {
+            "total": 19,
+            "active": 19,
+            "inactive": 0,
+            "by_department": [
+                {
+                    "department": "IT Department",
+                    "count": 1
+                }
+            ],
+            "by_role": [
+                {
+                    "role": "Admin",
+                    "count": 1
+                },
+                {
+                    "role": "Manager",
+                    "count": 8
+                },
+                {
+                    "role": "Sub-Manager",
+                    "count": 1
+                },
+                {
+                    "role": "Employee",
+                    "count": 1
+                },
+                {
+                    "role": "HR",
+                    "count": 8
+                }
+            ]
+        },
+        "attendance": {
+            "month": 10,
+            "year": 2025,
+            "statistics": {
+                "present": 0,
+                "absent": 0,
+                "weekly_off": 0,
+                "holiday": 0,
+                "half_day": 0
+            },
+            "total_records": 0
+        },
+        "salary": {
+            "total_payroll": 9000000.0,
+            "average_salary": 500000.0,
+            "employees_with_structure": 18
+        },
+        "payslips": {
+            "month": 10,
+            "year": 2025,
+            "generated": 0,
+            "pending": 19
+        },
+        "recent_activities": {
+            "new_joinings_30_days": 0,
+            "leavings": 0
+        },
+        "overtime": {
+            "month": 10,
+            "year": 2025,
+            "total_hours": 0.0,
+            "records_count": 0
+        }
+    }
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="section-header" style="background-color: blueviolet;">Attendance Management APIs</td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/mark-attendance/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">Mark attendance for an employee</td>
+                            <td><pre class="json-body">{
+  "employee_id": 19,
+  "date": "2024-10-07",
+  "status": "P"
+}</pre></td>
+                            <td><pre class="response">{
+    "success": true,
+    "message": "Attendance updated successfully",
+    "data": {
+        "id": 1,
+        "date": "07/10/2024",
+        "status": "P",
+        "status_display": "Present",
+        "day_name": "Monday"
+    }
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/bulk-mark-attendance/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td>-</td>
+                            <td class="description">Mark attendance for multiple employees</td>
+                            <td><pre class="json-body">{
+  "date": "2024-10-07",
+  "attendance_records": [
+    {"employee_id": 19, "status": "P"},
+    {"employee_id": 20, "status": "A"},
+    {"employee_id": 21, "status": "P"}
+  ]
+}</pre></td>
+                            <td><pre class="response">{
+    "success": true,
+    "message": "Bulk attendance marking completed",
+    "summary": {
+        "created": 2,
+        "updated": 1,
+        "errors": 0
+    },
+    "errors": null
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/attendance-report/?start_date=2024-10-01&end_date=2024-10-31</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td>start_date, end_date (required)<br>employee_id, company_id (optional)</td>
+                            <td class="description">Get detailed attendance report</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "success": true,
+    "period": {
+        "start_date": "2024-10-01",
+        "end_date": "2024-10-31"
+    },
+    "total_employees": 3,
+    "data": [
+        {
+            "employee_id": 19,
+            "employee_code": "EMP_27_202",
+            "employee_name": "Employee.account",
+            "department": "IT Department",
+            "statistics": {
+                "present": 22,
+                "absent": 2,
+                "weekly_off": 4,
+                "holiday": 2,
+                "half_day": 1
+            },
+            "total_working_days": 23
+        }
+    ]
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="section-header">Salary</td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/create-salary-structure/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td class="description">Create salary structure for an employee</td>
+                            <td>{
+  "employee_id": 1,
+  "CTC": 600000,
+  "basic": 300000,
+  "da": 50000,
+  "hra": 100000,
+  "conveyance": 20000,
+  "bonus": 30000,
+  "other_allowances": 100000,
+  "pf_deduction": 36000,
+  "esi_deduction": 12000,
+  "pt_deduction": 2400,
+  "lwf_deduction": 1200,
+  "insurance": 5000,
+  "advance": 0
+}</td>
+                            <td><pre class="response">{
+  "success": true,
+  "message": "Salary structure created successfully",
+  "data": {
+    "id": 1,
+    "employee": 1,
+    "CTC": 600000.00,
+    "basic": 300000.00,
+    "da": 50000.00,
+    "hra": 100000.00,
+    "conveyance": 20000.00,
+    "bonus": 30000.00,
+    "other_allowances": 100000.00,
+    "pf_deduction": 36000.00,
+    "esi_deduction": 12000.00,
+    "pt_deduction": 2400.00,
+    "lwf_deduction": 1200.00,
+    "insurance": 5000.00,
+    "advance": 0.00,
+    "net_salary": 537400.00
+  }
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/update-salary-structure/</td>
+                            <td><span class="method put">PUT</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td class="description">Update salary structure for an employee</td>
+                            <td>{
+  "employee_id": 1,
+  "CTC": 650000,
+  "basic": 325000,
+  "da": 55000,
+  "hra": 110000,
+  "conveyance": 22000,
+  "bonus": 35000,
+  "other_allowances": 103000
+}</td>
+                            <td><pre class="response">{
+    "success": true,
+    "message": "Salary structure updated successfully",
+    "data": {
+        "id": 10,
+        "net_salary": "543400.00",
+        "CTC": "600000.00",
+        "basic": "300000.00",
+        "da": "50000.00",
+        "hra": "100000.00",
+        "conveyance": "20000.00",
+        "bonus": "30000.00",
+        "other_allowances": "100000.00",
+        "pf_deduction": "36000.00",
+        "esi_deduction": "12000.00",
+        "pt_deduction": "2400.00",
+        "lwf_deduction": "1200.00",
+        "insurance": "5000.00",
+        "advance": "0.00",
+        "employee": 19
+    },
+    "increment_recorded": true
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/get-salary-structure/?employee_id=19</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td class="description">GET salary structure for an employee</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "success": true,
+    "data": {
+        "id": 10,
+        "net_salary": "543400.00",
+        "CTC": "600000.00",
+        "basic": "300000.00",
+        "da": "50000.00",
+        "hra": "100000.00",
+        "conveyance": "20000.00",
+        "bonus": "30000.00",
+        "other_allowances": "100000.00",
+        "pf_deduction": "36000.00",
+        "esi_deduction": "12000.00",
+        "pt_deduction": "2400.00",
+        "lwf_deduction": "1200.00",
+        "insurance": "5000.00",
+        "advance": "0.00",
+        "employee": 19
+    }
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="section-header">pay slips</td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/generate-payslip/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td class="description">generate pay slip</td>
+                            <td>{
+  "employee_id": 19,
+  "month": 10,
+  "year": 2024,
+  "working_days": 26,
+  "days_present": 24,
+  "overtime_hours": 5,
+  "advance_deduction": 5000,
+  "other_deductions": 1000
+}</td>
+                            <td><pre class="response">{
+    "success": true,
+    "message": "Payslip generated successfully",
+    "data": {
+        "id": 1,
+        "month": 10,
+        "year": 2024,
+        "month_name": "October",
+        "gross_salary": "46153.85",
+        "deductions": "10408.97",
+        "net_salary": "35744.87",
+        "pdf_file": "/media/payslips/payslip_EMP_27_202_10_2024.pdf",
+        "pdf_url": "/media/payslips/payslip_EMP_27_202_10_2024.pdf"
+    }
+}</pre></td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/get-payslips/</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td class="description">get pay slips list</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "success": true,
+    "count": 1,
+    "data": [
+        {
+            "id": 1,
+            "month": 10,
+            "year": 2024,
+            "month_name": "October",
+            "gross_salary": "46153.85",
+            "deductions": "10408.97",
+            "net_salary": "35744.87",
+            "pdf_file": "/media/payslips/payslip_EMP_27_202_10_2024.pdf",
+            "pdf_url": "/media/payslips/payslip_EMP_27_202_10_2024.pdf"
+        }
+    ]
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="section-header">Overtime Mgmt</td>
+                        </tr>
+                         <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/record-overtime/</td>
+                            <td><span class="method post">POST</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td class="description">update overtime</td>
+                            <td>{
+  "employee_id": 1,
+  "date": "2024-10-07",
+  "hours": 3.5
+}
+</td>
+                            <td><pre class="response">{
+    "success": true,
+    "message": "Overtime recorded successfully",
+    "data": {
+        "id": 1,
+        "date": "2024-10-07",
+        "hours": "3.50"
+    }
+}</pre></td>
+                        </tr>
+                         <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/overtime-report/?start_date=2024-10-01&end_date=2024-10-08&employee_id=&company_id=</td>
+                            <td><span class="method get">GET</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td class="description">overtime records view</td>
+                            <td>-</td>
+                            <td><pre class="response">{
+    "success": true,
+    "period": {
+        "start_date": "2024-10-01",
+        "end_date": "2024-10-08"
+    },
+    "total_employees": 1,
+    "total_overtime_hours": 3.5,
+    "data": [
+        {
+            "employee_id": 1,
+            "employee_code": "ADMIN001",
+            "employee_name": "Admin User",
+            "total_overtime_hours": 3.5,
+            "records_count": 1
+        }
+    ]
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="section-header">Employee Status Management</td>
+                        </tr>
+                         <tr style="background-color: lightgreen;">
+                            <td class="endpoint">/api/hr-dashboard/update-employee-status/</td>
+                            <td><span class="method put">PUT</span></td>
+                            <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                            <td class="description">Update employee status (ACTIVE,LEFT,TERMINATED) </td>
+                            <td>{
+  "employee_id": 1,
+  "status": "LEFT",
+  "remarks": "Resigned for better opportunity"
+}</td>
+                            <td><pre class="response">{
+    "success": true,
+    "message": "Employee status updated from ACTIVE to LEFT",
+    "data": {
+        "employee_id": 18,
+        "employee_name": "hr.account",
+        "old_status": "ACTIVE",
+        "new_status": "LEFT"
+    }
+}</pre></td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="section-header">Analytics & Reports</td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/hr-dashboard/analytics/</td>
+                           <td><span class="method get">GET</span></td>
+                           <td><span class="auth-required ">yes(HR/Admin/Manager/Supervisor)</span></td>
+                           <td class="description">Get analytics accepts company_id: 5
+year: 2024 parameters</td>
+                           <td>-</td>
+                           <td><pre class="response">{
+    "success": true,
+    "year": 2025,
+    "headcount": {
+        "total_active": 19,
+        "by_role": [
+            {
+                "role": "Admin",
+                "count": 1
+            },
+            {
+                "role": "Employee",
+                "count": 1
+            },
+            {
+                "role": "HR",
+                "count": 8
+            },
+            {
+                "role": "Manager",
+                "count": 8
+            },
+            {
+                "role": "Sub-Manager",
+                "count": 1
+            }
+        ],
+        "by_gender": [
+            {
+                "gender": "F",
+                "count": 3
+            },
+            {
+                "gender": "M",
+                "count": 16
+            }
+        ]
+    },
+    "salary_analysis": {
+        "min_ctc": 500000.0,
+        "max_ctc": 600000.0,
+        "avg_ctc": 505555.55555555556,
+        "total_annual_payroll": 9100000.0
+    },
+    "attendance_trends": [
+        {
+            "month": "November 2024",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "December 2024",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "January 2025",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "February 2025",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "March 2025",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "April 2025",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "May 2025",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "June 2025",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "July 2025",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "August 2025",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "September 2025",
+            "present": 0,
+            "absent": 0
+        },
+        {
+            "month": "October 2025",
+            "present": 0,
+            "absent": 0
+        }
+    ],
+    "turnover": {
+        "joinings": 0,
+        "leavings": 0,
+        "turnover_rate": 0.0
+    }
+}</pre></td>
+                       </tr>
+                        <tr>
+                            <td colspan="7" class="section-header">Supervisor Dashboard</td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/supervisor-dashboard/team-overview/</td>
+                           <td><span class="method get">GET</span></td>
+                           <td><span class="auth-required ">yes(/Supervisor)</span></td>
+                           <td class="description">Get team overview with statistics
+accepts month: 10
+year: 2024
+</td>
+                           <td>-</td>
+                           <td><pre class="response">{
+    "success": true,
+    "supervisor": {
+        "id": 20,
+        "name": "supervisor.account",
+        "employee_code": "EMP_27_006",
+        "department": "N/A"
+    },
+    "data": {
+        "team": {
+            "total_members": 0,
+            "by_department": [],
+            "by_designation": []
+        },
+        "attendance": {
+            "month": 10,
+            "year": 2025,
+            "statistics": {
+                "present": 0,
+                "absent": 0,
+                "weekly_off": 0,
+                "holiday": 0,
+                "half_day": 0
+            },
+            "attendance_percentage": 0,
+            "total_records": 0
+        },
+        "overtime": {
+            "month": 10,
+            "year": 2025,
+            "total_hours": 0.0,
+            "records_count": 0
+        },
+        "top_performers": []
+    }
+}</pre></td>
+                       </tr>
+                        <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/supervisor-dashboard/team-members/</td>
+                           <td><span class="method get">GET</span></td>
+                           <td><span class="auth-required ">yes(/Supervisor)</span></td>
+                           <td class="description">Get team members list
+accepts department: Operations
+designation: Team Lead
+</td>
+                           <td>-</td>
+                           <td><pre class="response">{
+    "success": true,
+    "supervisor": {
+        "id": 20,
+        "name": "supervisor.account"
+    },
+    "total_members": 0,
+    "team_members": []
+}</pre></td>
+                       </tr>
+                         <tr>
+                            <td colspan="7" class="section-header" style="background-color: blueviolet;">📅 Attendance Management
+</td>
+                        </tr>
+                        <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/supervisor-dashboard/mark-team-attendance/</td>
+                           <td><span class="method post">POST</span></td>
+                           <td><span class="auth-required ">yes(/Supervisor)</span></td>
+                           <td class="description">Mark attendance for team members
+                            P - Present
+A - Absent
+WO - Weekly Off
+H - Holiday
+HD - Half Day
+</td>
+                           <td>{
+  "employee_id": 19,
+  "date": "2024-10-17",
+  "status": "P"
+}</td>
+                           <td><pre class="response">{
+  "success": true,
+  "message": "Attendance marked successfully",
+  "data": {
+    "id": 145,
+    "employee": 12,
+    "date": "2024-10-07",
+    "status": "P"
+  }
+}</pre></td>
+                       </tr>
+                        <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/supervisor-dashboard/bulk-mark-team-attendance/</td>
+                           <td><span class="method post">POST</span></td>
+                           <td><span class="auth-required ">yes(/Supervisor)</span></td>
+                           <td class="description">Mark attendance for team members
+                            P - Present
+A - Absent
+WO - Weekly Off
+H - Holiday
+HD - Half Day
+</td>
+                           <td>{
+  "date": "2024-10-07",
+  "attendance_records": [
+    {"employee_id": 12, "status": "P"},
+    {"employee_id": 13, "status": "P"},
+    {"employee_id": 14, "status": "A"}
+  ]
+}</td>
+                           <td><pre class="response">{
+  "success": true,
+  "message": "Bulk attendance marking completed",
+  "summary": {
+    "created": 2,
+    "updated": 1,
+    "errors": 0
+  },
+  "errors": null
+}</pre></td>
+                       </tr>
+                        <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/supervisor-dashboard/team-attendance-report/?start_date=2024-10-01&end_date=2024-10-31</td>
+                           <td><span class="method get">GET</span></td>
+                           <td><span class="auth-required ">yes(/Supervisor)</span></td>
+                           <td class="description">Get attendence
+</td>
+                           <td>-</td>
+                           <td><pre class="response">{
+    "success": true,
+    "supervisor": {
+        "id": 20,
+        "name": "supervisor.account"
+    },
+    "period": {
+        "start_date": "2024-10-01",
+        "end_date": "2024-10-31"
+    },
+    "total_employees": 0,
+    "data": []
+}</pre></td>
+                       </tr>
+                         <tr>
+                            <td colspan="7" class="section-header" style="background-color: blueviolet;">Overtime Management
+</td>
+                        </tr>
+                         <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/supervisor-dashboard/record-team-overtime/</td>
+                           <td><span class="method post">POST</span></td>
+                           <td><span class="auth-required ">yes(supervisor)</span></td>
+                           <td class="description">post overtime
+</td>
+                           <td>{
+  "employee_id": 12,
+  "date": "2024-10-07",
+  "hours": 3.5
+}</td>
+                           <td><pre class="response">{
+  "employee_id": 12,
+  "date": "2024-10-07",
+  "hours": 3.5
+}</pre></td>
+                       </tr>
+                         <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/supervisor-dashboard/team-overtime-report/?start_date=2024-10-01&end_date=2024-10-31</td>
+                           <td><span class="method get">GET</span></td>
+                           <td><span class="auth-required ">yes(supervisor)</span></td>
+                           <td class="description">get overtime
+</td>
+                           <td>-</td>
+                           <td><pre class="response">{
+  "success": true,
+  "supervisor": {
+    "id": 5,
+    "name": "John Supervisor"
+  },
+  "period": {
+    "start_date": "2024-10-01",
+    "end_date": "2024-10-31"
+  },
+  "total_employees": 8,
+  "total_overtime_hours": 125.5,
+  "data": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "employee_name": "Alice Johnson",
+      "designation": "Team Lead",
+      "total_overtime_hours": 28.5,
+      "records_count": 8
+    }
+  ]
+}</pre></td>
+                       </tr>
+                        <tr>
+                            <td colspan="7" class="section-header" style="background-color: blueviolet;">Overtime Management
+</td>
+                        </tr>
+                         <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/supervisor-dashboard/team-performance/</td>
+                           <td><span class="method get">GET</span></td>
+                           <td><span class="auth-required ">yes(supervisor)</span></td>
+                           <td class="description">get overtime parameters month: 10
+year: 2024
+</td>
+                           <td>-</td>
+                           <td><pre class="response">{
+  "success": true,
+  "supervisor": {
+    "id": 5,
+    "name": "John Supervisor"
+  },
+  "period": {
+    "month": 10,
+    "year": 2024
+  },
+  "total_members": 15,
+  "data": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "full_name": "Alice Johnson",
+      "designation": "Team Lead",
+      "attendance_rate": 95.83,
+      "present_days": 23,
+      "absent_days": 1,
+      "overtime_hours": 28.5,
+      "performance_score": 95.83
+    }
+  ]
+}</pre></td>
+                       </tr>
+                        <tr>
+                            <td colspan="7" class="section-header" style="background-color: blueviolet;">⚡ Quick Actions</td>
+                        </tr>
+                         <tr style="background-color: lightgreen;">
+                           <td class="endpoint">/api/supervisor-dashboard/today-attendance-summary/</td>
+                           <td><span class="method get">GET</span></td>
+                           <td><span class="auth-required ">yes(supervisor)</span></td>
+                           <td class="description">attendance</td>
+                           <td>-</td>
+                           <td><pre class="response">{
+  "success": true,
+  "supervisor": {
+    "id": 5,
+    "name": "John Supervisor"
+  },
+  "date": "2024-10-07",
+  "summary": {
+    "total_team": 15,
+    "present": 12,
+    "absent": 1,
+    "not_marked": 2
+  },
+  "members_status": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "full_name": "Alice Johnson",
+      "status": "Present",
+      "status_code": "P"
+    },
+    {
+      "employee_id": 13,
+      "employee_code": "EMP013",
+      "full_name": "Bob Smith",
+      "status": "Not Marked",
+      "status_code": null
+    }
+  ]
+}</pre></td>
+                       </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div style="padding: 20px; background-color: #f7fafc; border-top: 1px solid #e2e8f0; margin-top: 0;">
+            <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                <h3 style="color: #2d3748; margin-bottom: 15px;">Authentication Notes</h3>
+                <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: left;">
+                    <h4 style="color: #4a5568; margin-top: 0;">Authorization Header Format:</h4>
+                    <code style="background: #f7fafc; padding: 8px; border-radius: 4px; display: block; margin: 5px 0;">Authorization: Bearer &lt;access_token&gt;</code>
+                    
+                    <h4 style="color: #4a5568; margin-top: 15px;">Permission Types:</h4>
+                    <ul style="margin: 5px 0; padding-left: 20px;">
+                        <li><strong>Authenticated:</strong> Any logged-in user</li>
+                        <li><strong>ClientProfile:</strong> User must have client profile permission</li>
+                        <li><strong>Admin:</strong> Super admin users only</li>
+                        <li><strong>HR:</strong> HR role users</li>
+                        <li><strong>Supervisor:</strong> Supervisor role users</li>
+                    </ul>
+                    
+                    <h4 style="color: #4a5568; margin-top: 15px;">Common HTTP Status Codes:</h4>
+                    <ul style="margin: 5px 0; padding-left: 20px;">
+                        <li><strong>200:</strong> Success</li>
+                        <li><strong>201:</strong> Created</li>
+                        <li><strong>400:</strong> Bad Request</li>
+                        <li><strong>401:</strong> Unauthorized</li>
+                        <li><strong>403:</strong> Forbidden</li>
+                        <li><strong>404:</strong> Not Found</li>
+                        <li><strong>500:</strong> Internal Server Error</li>
+                    </ul>
+                </div>
+                
+                <div style="background: white; padding: 15px; border-radius: 8px; text-align: left;">
+                    <h4 style="color: #4a5568; margin-top: 0;">Base URL:</h4>
+                    <code style="background: #f7fafc; padding: 8px; border-radius: 4px; display: block; margin: 5px 0;">https://your-domain.com/</code>
+                    
+                    <h4 style="color: #4a5568; margin-top: 15px;">Content-Type Header:</h4>
+                    <code style="background: #f7fafc; padding: 8px; border-radius: 4px; display: block; margin: 5px 0;">Content-Type: application/json</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

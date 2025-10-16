@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Approval Workflow APIs - Hierarchical Multi-Level Approval System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .workflow-diagram {
+            background: #f8f9fa;
+            padding: 40px;
+            margin: 30px 0;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+
+        .workflow-title {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .workflow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .workflow-step {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .workflow-arrow {
+            color: #667eea;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .nav {
+            background: #2d3748;
+            padding: 25px 50px;
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .nav a:hover {
+            background: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .content {
+            padding: 50px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #2d3748;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .api-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .api-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+        }
+
+        .method.get { background: #48bb78; color: white; }
+        .method.post { background: #4299e1; color: white; }
+        .method.put { background: #ed8936; color: white; }
+        .method.delete { background: #f56565; color: white; }
+
+        .endpoint {
+            font-family: 'Courier New', monospace;
+            background: #2d3748;
+            color: #68d391;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1em;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .api-description {
+            color: #4a5568;
+            margin-bottom: 20px;
+            line-height: 1.8;
+            font-size: 1.05em;
+        }
+
+        .subsection {
+            margin-top: 25px;
+        }
+
+        .subsection-title {
+            font-size: 1.2em;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: #2d3748;
+            color: #68d391;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .params-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .params-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .params-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .params-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge.required { background: #fed7d7; color: #c53030; }
+        .badge.optional { background: #bee3f8; color: #2c5282; }
+
+        .warning-box {
+            background: #fff5f5;
+            border-left: 5px solid #f56565;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .warning-box h4 {
+            color: #c53030;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .info-box {
+            background: #ebf8ff;
+            border-left: 5px solid #4299e1;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .info-box h4 {
+            color: #2c5282;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .success-box {
+            background: #f0fff4;
+            border-left: 5px solid #48bb78;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .success-box h4 {
+            color: #276749;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        ul {
+            padding-left: 25px;
+            line-height: 1.8;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .footer {
+            background: #2d3748;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .content { padding: 30px 20px; }
+            .api-header { flex-direction: column; align-items: flex-start; }
+            .workflow-steps { flex-direction: column; }
+            .workflow-arrow { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 Approval Workflow APIs</h1>
+            <p>Hierarchical Multi-Level Approval System for Employee, HR, Supervisor & Sub-Company Creation</p>
+            <p style="margin-top: 15px; font-size: 1em; opacity: 0.9;">
+                Smart routing ensures approval requests go only to relevant company managers
+            </p>
+        </div>
+
+        <div class="nav">
+            <a href="#overview">Overview</a>
+            <a href="#workflows">Workflows</a>
+            <a href="#create-requests">Create Requests</a>
+            <a href="#pending-approvals">Pending Approvals</a>
+            <a href="#approve-reject">Approve/Reject</a>
+            <a href="#notifications">Notifications</a>
+            <a href="#history">History</a>
+            <a href="#examples">Examples</a>
+        </div>
+
+        <div class="content">
+            <!-- Overview Section -->
+            <section id="overview" class="section">
+                <h2 class="section-title">📋 System Overview</h2>
+                
+                <div class="info-box">
+                    <h4>✨ Key Features</h4>
+                    <ul>
+                        <li><strong>Hierarchical Approvals:</strong> Multi-level approval chains based on account type</li>
+                        <li><strong>Smart Routing:</strong> Requests go only to the relevant company's manager</li>
+                        <li><strong>Auto-Stop on Rejection:</strong> If sub-manager rejects, main manager isn't notified</li>
+                        <li><strong>Real-time Notifications:</strong> Automated notifications to next approvers</li>
+                        <li><strong>Complete Audit Trail:</strong> Track every action in the approval workflow</li>
+                        <li><strong>Expiration Management:</strong> Pending requests expire after 30 days</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>🔒 Security & Access Control</h4>
+                    <ul>
+                        <li><strong>JWT Authentication Required:</strong> All endpoints require valid Bearer token</li>
+                        <li><strong>Role-Based Access:</strong> Only authorized roles can create/approve requests</li>
+                        <li><strong>Company-Specific Routing:</strong> Managers only see requests for their company</li>
+                        <li><strong>Permission Validation:</strong> Each action verifies user permissions</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Workflow Diagrams Section -->
+            <section id="workflows" class="section">
+                <h2 class="section-title">🔄 Approval Workflows</h2>
+
+                <div class="workflow-diagram">
+                    <div class="workflow-title">1. Employee Creation (2 Levels)</div>
+                    <div class="workflow-steps">
+                        <div class="workflow-step">
+                            <strong>HR Creates Request</strong>
+                            <p style="margin-top: 10px; color: #666;">Employee data submitted</p>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                        <div class="workflow-step">
+                            <strong>Sub-Company Manager</strong>
+                            <p style="margin-top: 10px; color: #666;">Reviews & approves/rejects</p>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                        <div class="workflow-step">
+                            <strong>Main Company Manager</strong>
+                            <p style="margin-top: 10px; color: #666;">Final approval</p>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                        <div class="workflow-step" style="background: #48bb78; color: white;">
+                            <strong>✓ Created</strong>
+                            <p style="margin-top: 10px;">Account activated</p>
+                        </div>
+                    </div>
+                    <p style="margin-top: 15px; color: #666;">
+                        <strong>Note:</strong> If created in main company directly, skips sub-company manager.
+                    </p>
+                </div>
+
+                <div class="workflow-diagram">
+                    <div class="workflow-title">2. HR/Supervisor Creation (3 Levels)</div>
+                    <div class="workflow-steps">
+                        <div class="workflow-step">
+                            <strong>Manager Creates Request</strong>
+                            <p style="margin-top: 10px; color: #666;">HR/Supervisor data submitted</p>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                        <div class="workflow-step">
+                            <strong>Sub-Company Manager</strong>
+                            <p style="margin-top: 10px; color: #666;">First approval (if in sub-company)</p>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                        <div class="workflow-step">
+                            <strong>Main Company Manager</strong>
+                            <p style="margin-top: 10px; color: #666;">Second approval</p>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                        <div class="workflow-step">
+                            <strong>Admin</strong>
+                            <p style="margin-top: 10px; color: #666;">Final approval</p>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                        <div class="workflow-step" style="background: #48bb78; color: white;">
+                            <strong>✓ Created</strong>
+                            <p style="margin-top: 10px;">Account activated</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workflow-diagram">
+                    <div class="workflow-title">3. Sub-Company Creation (1 Level)</div>
+                    <div class="workflow-steps">
+                        <div class="workflow-step">
+                            <strong>Manager Creates Request</strong>
+                            <p style="margin-top: 10px; color: #666;">Sub-company data submitted</p>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                        <div class="workflow-step">
+                            <strong>Admin</strong>
+                            <p style="margin-top: 10px; color: #666;">Reviews & approves/rejects</p>
+                        </div>
+                        <div class="workflow-arrow">→</div>
+                        <div class="workflow-step" style="background: #48bb78; color: white;">
+                            <strong>✓ Created</strong>
+                            <p style="margin-top: 10px;">Sub-company activated</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <h4>⚠️ Rejection Behavior</h4>
+                    <ul>
+                        <li>If Sub-Company Manager rejects → Workflow stops immediately</li>
+                        <li>Main Company Manager is NOT notified</li>
+                        <li>Creator receives rejection notification with reason</li>
+                        <li>Request status changes to "rejected" permanently</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Create Employee Request API -->
+            <section id="create-requests" class="section">
+                <h2 class="section-title">📝 Create Approval Requests</h2>
+
+                <!-- Create Employee Request -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/approval-workflow/create-employee-request/</span>
+                    </div>
+                    <div class="api-description">
+                        Create an employee account approval request. HR can submit new employee details which will go through the approval chain: Sub-Company Manager → Main Company Manager.
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">🔐 Who Can Use:</div>
+                        <ul>
+                            <li>HR (in any company)</li>
+                            <li>Manager (main or sub-company)</li>
+                            <li>Sub-Manager</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📥 Request Body:</div>
+                        <div class="code-block">{
+    "employee_data": {
+        "full_name": "John Doe",
+        "employee_code": "EMP001",
+        "date_of_birth": "1990-01-15",
+        "gender": "M",
+        "marital_status": "S",
+        "mobile_number": "+1234567890",
+        "email": "john.doe@company.com",
+        "current_address": "123 Main St",
+        "permanent_address": "123 Main St",
+        "role": "Employee",
+        "sub_company_id": 5  // Optional: if creating in sub-company
+    },
+    "official_details_data": {
+        "date_of_joining": "2025-01-01",
+        "department": "Engineering",
+        "designation": "Software Engineer",
+        "location": "New York",
+        "supervisor_name": "Jane Manager",
+        "salary_type": "MONTHLY"
+    },
+    "password": "TempPassword123"
+}</div>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response:</div>
+                        <div class="code-block">{
+    "success": true,
+    "message": "Employee creation request submitted. Awaiting Sub-Company Manager approval.",
+    "data": {
+        "workflow_id": 123,
+        "approval_type": "employee",
+        "current_stage": "sub_manager",
+        "status": "pending"
+    }
+}</div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>💡 Smart Routing</h4>
+                        <ul>
+                            <li>If employee is for <strong>Sub-Company 1</strong> → Notification goes to <strong>Sub-Company 1 Manager only</strong></li>
+                            <li>After sub-company approval → Goes to Main Company Manager</li>
+                            <li>If employee is for Main Company directly → Starts at Main Company Manager</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Create HR/Supervisor Request -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/approval-workflow/create-hr-supervisor-request/</span>
+                    </div>
+                    <div class="api-description">
+                        Create HR or Supervisor account approval request. Requires 3-level approval: Sub-Company Manager → Main Company Manager → Admin.
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">🔐 Who Can Use:</div>
+                        <ul>
+                            <li>Manager (main or sub-company)</li>
+                            <li>Sub-Manager</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📥 Request Body:</div>
+                        <div class="code-block">{
+    "employee_data": {
+        "full_name": "Sarah HR",
+        "employee_code": "HR001",
+        "date_of_birth": "1988-05-20",
+        "gender": "F",
+        "marital_status": "M",
+        "mobile_number": "+1234567891",
+        "email": "sarah.hr@company.com",
+        "current_address": "456 Oak Ave",
+        "permanent_address": "456 Oak Ave",
+        "sub_company_id": 5  // Optional
+    },
+    "official_details_data": {
+        "date_of_joining": "2025-02-01",
+        "department": "Human Resources",
+        "designation": "HR Manager",
+        "location": "Chicago",
+        "supervisor_name": "Director Name",
+        "salary_type": "MONTHLY"
+    },
+    "password": "TempHRPass123",
+    "account_type": "hr"  // or "supervisor"
+}</div>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response:</div>
+                        <div class="code-block">{
+    "success": true,
+    "message": "HR creation request submitted. Awaiting Main Company Manager approval.",
+    "data": {
+        "workflow_id": 124,
+        "approval_type": "hr",
+        "current_stage": "main_manager",
+        "status": "pending"
+    }
+}</div>
+                    </div>
+                </div>
+
+                <!-- Create Sub-Company Request -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/approval-workflow/create-sub-company-request/</span>
+                    </div>
+                    <div class="api-description">
+                        Create a sub-company approval request. Only requires Admin approval (1 level).
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">🔐 Who Can Use:</div>
+                        <ul>
+                            <li>Manager (main company only)</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📥 Request Body:</div>
+                        <div class="code-block">{
+    "company_data": {
+        "name": "Tech Division",
+        "address": "789 Tech Park",
+        "contact_number": "+1234567892",
+        "email": "tech@company.com",
+        "gst_number": "GST123456",
+        "pan_number": "PAN123456"
+    }
+}</div>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response:</div>
+                        <div class="code-block">{
+    "success": true,
+    "message": "Sub-company creation request submitted. Awaiting Admin approval.",
+    "data": {
+        "workflow_id": 125,
+        "approval_type": "sub_company",
+        "current_stage": "admin",
+        "status": "pending"
+    }
+}</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pending Approvals API -->
+            <section id="pending-approvals" class="section">
+                <h2 class="section-title">📋 View Pending Approvals</h2>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/approval-workflow/pending-approvals/</span>
+                    </div>
+                    <div class="api-description">
+                        Get all pending approval requests that the current user can approve. Smart filtering ensures you only see requests for your company.
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">🔐 Access Rules:</div>
+                        <ul>
+                            <li><strong>Admin:</strong> Sees all workflows at "admin" stage</li>
+                            <li><strong>Main Company Manager:</strong> Sees workflows at "main_manager" stage for their company only</li>
+                            <li><strong>Sub-Company Manager:</strong> Sees workflows at "sub_manager" stage for their sub-company only</li>
+                        </ul>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📊 Query Parameters:</div>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>type</code></td>
+                                    <td>string</td>
+                                    <td><span class="badge optional">Optional</span></td>
+                                    <td>Filter by type: employee, hr, supervisor, sub_company</td>
+                                </tr>
+                                <tr>
+                                    <td><code>page</code></td>
+                                    <td>integer</td>
+                                    <td><span class="badge optional">Optional</span></td>
+                                    <td>Page number (default: 1)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>page_size</code></td>
+                                    <td>integer</td>
+                                    <td><span class="badge optional">Optional</span></td>
+                                    <td>Items per page (default: 20)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response Example:</div>
+                        <div class="code-block">{
+    "success": true,
+    "data": [
+        {
+            "id": 123,
+            "approval_type": "employee",
+            "approval_type_display": "Employee Creation",
+            "status": "pending",
+            "current_stage": "sub_manager",
+            "current_stage_display": "Awaiting Sub-Company Manager",
+            "company": "TechCorp Inc",
+            "sub_company": "Engineering Division",
+            "created_by": {
+                "employee_code": "HR001",
+                "full_name": "Jane HR",
+                "role": "HR"
+            },
+            "created_at": "2025-10-08T10:30:00Z",
+            "request_data": {
+                "employee_data": {
+                    "full_name": "John Doe",
+                    "employee_code": "EMP001",
+                    "role": "Employee"
+                }
+            }
+        }
+    ],
+    "pagination": {
+        "page": 1,
+        "page_size": 20,
+        "total_count": 5,
+        "total_pages": 1
+    }
+}</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Approve/Reject APIs -->
+            <section id="approve-reject" class="section">
+                <h2 class="section-title">✅ Approve / ❌ Reject Requests</h2>
+
+                <!-- Approve API -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/approval-workflow/{workflow_id}/approve/</span>
+                    </div>
+                    <div class="api-description">
+                        Approve a pending workflow request. If this is the final approval stage, the employee/company will be created automatically.
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📥 Request Body:</div>
+                        <div class="code-block">{
+    "comments": "Approved. All details verified."  // Optional
+}</div>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response (Intermediate Stage):</div>
+                        <div class="code-block">{
+    "success": true,
+    "message": "Approved. Request moved to Main Company Manager stage.",
+    "data": {
+        "workflow_id": 123,
+        "status": "pending",
+        "current_stage": "main_manager"
+    }
+}</div>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response (Final Approval):</div>
+                        <div class="code-block">{
+    "success": true,
+    "message": "Employee Creation has been approved and created successfully.",
+    "data": {
+        "workflow_id": 123,
+        "status": "approved",
+        "current_stage": "completed"
+    }
+}</div>
+                    </div>
+
+                    <div class="success-box">
+                        <h4>✨ What Happens on Final Approval:</h4>
+                        <ul>
+                            <li>User account is created with provided credentials</li>
+                            <li>Employee record is activated in the system</li>
+                            <li>Official details are linked to the employee</li>
+                            <li>Creator receives success notification</li>
+                            <li>Pending user record is cleaned up</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Reject API -->
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/approval-workflow/{workflow_id}/reject/</span>
+                    </div>
+                    <div class="api-description">
+                        Reject a pending workflow request. This immediately stops the workflow and prevents further approvals.
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📥 Request Body:</div>
+                        <div class="code-block">{
+    "reason": "Incomplete documentation provided"  // Required
+}</div>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response:</div>
+                        <div class="code-block">{
+    "success": true,
+    "message": "Request rejected successfully. Workflow stopped.",
+    "data": {
+        "workflow_id": 123,
+        "status": "rejected",
+        "rejection_reason": "Incomplete documentation provided"
+    }
+}</div>
+                    </div>
+
+                    <div class="warning-box">
+                        <h4>⚠️ Rejection Behavior:</h4>
+                        <ul>
+                            <li>Workflow stops immediately - no further approvals needed</li>
+                            <li>Next level approvers are NOT notified</li>
+                            <li>Creator receives rejection notification with reason</li>
+                            <li>Pending user data is retained for 30 days then auto-deleted</li>
+                            <li>Rejection is permanent - cannot be undone</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notifications API -->
+            <section id="notifications" class="section">
+                <h2 class="section-title">🔔 Notifications</h2>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/approval-workflow/notifications/</span>
+                    </div>
+                    <div class="api-description">
+                        Get approval workflow notifications for the current user. Includes pending approval alerts, approval confirmations, and rejections.
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📊 Query Parameters:</div>
+                        <table class="params-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>unread_only</code></td>
+                                    <td>boolean</td>
+                                    <td>Show only unread notifications (default: false)</td>
+                                </tr>
+                                <tr>
+                                    <td><code>page</code></td>
+                                    <td>integer</td>
+                                    <td>Page number</td>
+                                </tr>
+                                <tr>
+                                    <td><code>page_size</code></td>
+                                    <td>integer</td>
+                                    <td>Items per page</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response:</div>
+                        <div class="code-block">{
+    "success": true,
+    "data": [
+        {
+            "id": 456,
+            "workflow_id": 123,
+            "title": "New Employee Creation Approval Request",
+            "message": "A new Employee Creation request requires your approval...",
+            "notification_type": "pending_approval",
+            "is_read": false,
+            "created_at": "2025-10-08T11:00:00Z",
+            "read_at": null
+        }
+    ],
+    "pagination": {...}
+}</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/approval-workflow/mark-notification-read/</span>
+                    </div>
+                    <div class="api-description">
+                        Mark a notification as read.
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📥 Request Body:</div>
+                        <div class="code-block">{
+    "notification_id": 456
+}</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/approval-workflow/statistics/</span>
+                    </div>
+                    <div class="api-description">
+                        Get approval workflow statistics - pending counts by type and unread notification count.
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response:</div>
+                        <div class="code-block">{
+    "success": true,
+    "data": {
+        "pending_count": 8,
+        "by_type": {
+            "employee": 5,
+            "hr": 2,
+            "supervisor": 1,
+            "sub_company": 0
+        },
+        "unread_notifications": 3
+    }
+}</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History API -->
+            <section id="history" class="section">
+                <h2 class="section-title">📜 Workflow History</h2>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/approval-workflow/{workflow_id}/history/</span>
+                    </div>
+                    <div class="api-description">
+                        Get the complete approval history for a specific workflow. Shows who approved/rejected at each stage with timestamps and comments.
+                    </div>
+
+                    <div class="subsection">
+                        <div class="subsection-title">📤 Response:</div>
+                        <div class="code-block">{
+    "success": true,
+    "data": {
+        "workflow_id": 123,
+        "approval_type": "Employee Creation",
+        "status": "approved",
+        "history": [
+            {
+                "action": "created",
+                "action_display": "Workflow Created",
+                "stage": "sub_manager",
+                "actor": {
+                    "employee_code": "HR001",
+                    "full_name": "Jane HR",
+                    "role": "HR"
+                },
+                "comments": "Approval workflow created for new employee: John Doe",
+                "action_at": "2025-10-08T10:30:00Z"
+            },
+            {
+                "action": "approved",
+                "action_display": "Approved",
+                "stage": "sub_manager",
+                "actor": {
+                    "employee_code": "MGR005",
+                    "full_name": "Sub Manager Name",
+                    "role": "Manager"
+                },
+                "comments": "Approved. All details verified.",
+                "action_at": "2025-10-08T11:15:00Z"
+            },
+            {
+                "action": "approved",
+                "action_display": "Approved",
+                "stage": "main_manager",
+                "actor": {
+                    "employee_code": "MGR001",
+                    "full_name": "Main Manager Name",
+                    "role": "Manager"
+                },
+                "comments": "Final approval granted.",
+                "action_at": "2025-10-08T14:30:00Z"
+            }
+        ]
+    }
+}</div>
+                    </div>
+
+                    <div class="info-box">
+                        <h4>📊 History Tracking</h4>
+                        <ul>
+                            <li>Every action is logged with timestamp</li>
+                            <li>Actor information preserved at time of action</li>
+                            <li>Comments/rejection reasons stored</li>
+                            <li>Complete audit trail for compliance</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Complete Examples -->
+            <section id="examples" class="section">
+                <h2 class="section-title">💡 Complete Flow Examples</h2>
+
+                <div class="workflow-diagram">
+                    <div class="workflow-title">Example 1: HR Creates Employee in Sub-Company 1</div>
+                    
+                    <div class="code-block" style="margin: 20px 0;">
+# Step 1: HR (in Sub-Company 1) creates employee request
+POST /api/approval-workflow/create-employee-request/
+Authorization: Bearer {hr_token}
+
+{
+  "employee_data": {
+    "full_name": "John Doe",
+    "employee_code": "EMP001",
+    "email": "john@company.com",
+    "role": "Employee",
+    "sub_company_id": 1  // Sub-Company 1
+  },
+  "password": "temp123"
+}
+
+# Response: Workflow created, notification sent to Sub-Company 1 Manager ONLY
+{
+  "workflow_id": 100,
+  "current_stage": "sub_manager"
+}
+</div>
+
+                    <div class="code-block" style="margin: 20px 0;">
+# Step 2: Sub-Company 1 Manager approves
+POST /api/approval-workflow/100/approve/
+Authorization: Bearer {sub_company_1_manager_token}
+
+{
+  "comments": "Approved by Sub-Company 1 Manager"
+}
+
+# Response: Moved to main_manager stage
+# Notification sent to Main Company Manager
+{
+  "current_stage": "main_manager"
+}
+</div>
+
+                    <div class="code-block" style="margin: 20px 0;">
+# Step 3: Main Company Manager approves (Final)
+POST /api/approval-workflow/100/approve/
+Authorization: Bearer {main_manager_token}
+
+{
+  "comments": "Final approval - Employee account created"
+}
+
+# Response: Employee created successfully!
+{
+  "status": "approved",
+  "current_stage": "completed",
+  "message": "Employee has been approved and created successfully."
+}
+</div>
+                </div>
+
+                <div class="workflow-diagram">
+                    <div class="workflow-title">Example 2: Sub-Company Manager Rejects Employee</div>
+                    
+                    <div class="code-block" style="margin: 20px 0;">
+# Step 1: HR creates employee request (same as above)
+
+# Step 2: Sub-Company 1 Manager REJECTS
+POST /api/approval-workflow/100/reject/
+Authorization: Bearer {sub_company_1_manager_token}
+
+{
+  "reason": "Incomplete documentation"
+}
+
+# Response: Workflow stopped
+{
+  "status": "rejected",
+  "message": "Request rejected successfully. Workflow stopped."
+}
+
+# Result:
+# - Main Company Manager is NOT notified
+# - Creator (HR) receives rejection notification
+# - Workflow permanently rejected
+</div>
+                </div>
+
+                <div class="workflow-diagram">
+                    <div class="workflow-title">Example 3: Manager Creates HR Account (3-Level Approval)</div>
+                    
+                    <div class="code-block" style="margin: 20px 0;">
+# Step 1: Manager creates HR request
+POST /api/approval-workflow/create-hr-supervisor-request/
+Authorization: Bearer {manager_token}
+
+{
+  "employee_data": {
+    "full_name": "Sarah HR",
+    "employee_code": "HR002",
+    "sub_company_id": 1
+  },
+  "account_type": "hr",
+  "password": "hrtemp123"
+}
+
+# Step 2: Sub-Company Manager approves → Goes to Main Manager
+# Step 3: Main Company Manager approves → Goes to Admin
+# Step 4: Admin approves (Final) → HR account created!
+</div>
+                </div>
+            </section>
+
+            <!-- Authentication -->
+            <section class="section">
+                <h2 class="section-title">🔐 Authentication</h2>
+                
+                <div class="info-box">
+                    <h4>All endpoints require JWT authentication</h4>
+                    <div class="code-block">Authorization: Bearer {your_jwt_token}</div>
+                </div>
+
+                <div class="code-block">
+# Example with curl
+curl -X GET "http://localhost:8000/api/approval-workflow/pending-approvals/" \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc..."
+  -H "Content-Type: application/json"
+</div>
+            </section>
+        </div>
+
+        <div class="footer">
+            <p><strong>Approval Workflow API Documentation</strong></p>
+            <p style="margin-top: 10px; opacity: 0.8;">
+                Smart hierarchical approval system with company-specific routing
+            </p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Created: October 8, 2025 | Version 1.0
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard APIs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;  
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .api-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .api-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .api-card .method {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+        }
+
+        .method.get {
+            background: #28a745;
+            color: white;
+        }
+
+        .method.post {
+            background: #007bff;
+            color: white;
+        }
+
+        .api-card .endpoint {
+            font-family: 'Courier New', monospace;
+            color: #333;
+            font-size: 0.95em;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .api-card .description {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.9em;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .feature-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .status-legend {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .status-badge.present { background: #28a745; color: white; }
+        .status-badge.absent { background: #dc3545; color: white; }
+        .status-badge.weekly-off { background: #6c757d; color: white; }
+        .status-badge.holiday { background: #ffc107; color: black; }
+        .status-badge.half-day { background: #17a2b8; color: white; }
+
+        .auth-note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .auth-note strong {
+            color: #856404;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .quick-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .quick-link {
+            background: white;
+            color: #667eea;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: 2px solid #667eea;
+        }
+
+        .quick-link:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Employee Dashboard APIs</h1>
+            <p>Comprehensive Self-Service Portal for HRMS System</p>
+            <div class="quick-links">
+                <a href="#dashboard" class="quick-link">Dashboard</a>
+                <a href="#profile" class="quick-link">Profile</a>
+                <a href="#documents" class="quick-link">Documents</a>
+                <a href="#salary" class="quick-link">Salary</a>
+                <a href="#attendance" class="quick-link">Attendance</a>
+                <a href="#reports" class="quick-link">Reports</a>
+            </div>
+        </header>
+
+        <div class="content">
+            <div class="auth-note">
+                <strong>🔐 Authentication Required:</strong> All APIs require JWT token in header: 
+                <code>Authorization: Bearer YOUR_JWT_TOKEN</code>
+            </div>
+
+            <!-- Features Overview -->
+            <div class="section">
+                <h2>✨ Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="icon">📊</div>
+                        <h3>Dashboard Stats</h3>
+                        <p>Real-time attendance, OT hours, and salary information</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">👤</div>
+                        <h3>Profile Management</h3>
+                        <p>View and request updates to personal information</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📄</div>
+                        <h3>Document Access</h3>
+                        <p>Download appointment orders, ID cards, and more</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">💰</div>
+                        <h3>Salary Details</h3>
+                        <p>View structure, download payslips, track increments</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📅</div>
+                        <h3>Attendance Tracking</h3>
+                        <p>Calendar view, summaries, and overtime details</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📊</div>
+                        <h3>Reports</h3>
+                        <p>Generate salary and deduction statements</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard APIs -->
+            <div class="section" id="dashboard">
+                <h2>📊 1. Dashboard APIs</h2>
+                <div class="api-grid">
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-dashboard/stats/</div>
+                        <div class="description">
+                            Get dashboard statistics including present days, absent days, OT hours, and take-home salary for current month.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-dashboard/notifications/</div>
+                        <div class="description">
+                            Get recent notifications. Supports query params: <code>?limit=10&unread_only=true</code>
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method post">POST</span>
+                        <div class="endpoint">/api/employee-dashboard/{id}/mark-read/</div>
+                        <div class="description">
+                            Mark a specific notification as read.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method post">POST</span>
+                        <div class="endpoint">/api/employee-dashboard/mark-all-read/</div>
+                        <div class="description">
+                            Mark all notifications as read for the current employee.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile APIs -->
+            <div class="section" id="profile">
+                <h2>👤 2. Profile APIs</h2>
+                <div class="api-grid">
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-profile/personal-info/</div>
+                        <div class="description">
+                            Get personal information: full name, employee code, DOB, gender, marital status.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-profile/contact-info/</div>
+                        <div class="description">
+                            Get contact information: mobile number, email, current address, permanent address.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-profile/official-info/</div>
+                        <div class="description">
+                            Get official information: DOJ, department, designation, location, supervisor name.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-profile/identity-docs/</div>
+                        <div class="description">
+                            Get identity documents: Aadhaar, PAN, ESI, PF UAN numbers.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-profile/bank-info/</div>
+                        <div class="description">
+                            Get bank information: bank name, account number, IFSC code, branch name.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-profile/complete/</div>
+                        <div class="description">
+                            Get complete employee profile in one API call (all sections combined).
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method post">POST</span>
+                        <div class="endpoint">/api/employee-profile/request-update/</div>
+                        <div class="description">
+                            Submit a request to update profile fields. Requires HR approval.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-profile/update-requests/</div>
+                        <div class="description">
+                            View all profile update requests and their approval status.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Documents APIs -->
+            <div class="section" id="documents">
+                <h2>📄 3. Documents APIs</h2>
+                <div class="api-grid">
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-documents/list/</div>
+                        <div class="description">
+                            Get list of all documents for the employee.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-documents/appointment-order/</div>
+                        <div class="description">
+                            Get appointment order document details.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-documents/esi-card/</div>
+                        <div class="description">
+                            Get ESI card document (if applicable).
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-documents/id-card/</div>
+                        <div class="description">
+                            Get ID card document for download/print.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-documents/relieving-letter/</div>
+                        <div class="description">
+                            Get relieving letter (for resigned/terminated employees).
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-documents/{id}/download/</div>
+                        <div class="description">
+                            Download any document by its ID as PDF.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Salary APIs -->
+            <div class="section" id="salary">
+                <h2>💰 4. Salary APIs</h2>
+                <div class="api-grid">
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-salary/structure/</div>
+                        <div class="description">
+                            Get complete salary structure with earnings (Basic, DA, HRA, etc.) and deductions (PF, ESI, PT, etc.).
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-salary/payslips/</div>
+                        <div class="description">
+                            Get monthly payslip history. Supports filters: <code>?year=2024&month=12</code>
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-salary/{id}/download/</div>
+                        <div class="description">
+                            Download payslip PDF for a specific month.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-salary/increments/</div>
+                        <div class="description">
+                            Get increment history with effective dates and old vs new salary comparison.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance APIs -->
+            <div class="section" id="attendance">
+                <h2>📅 5. Attendance APIs</h2>
+                <div class="api-grid">
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-attendance/calendar/</div>
+                        <div class="description">
+                            Get monthly attendance calendar view. Supports: <code>?year=2025&month=1</code>
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-attendance/summary/</div>
+                        <div class="description">
+                            Get attendance summary table with total working days, present, absent, weekly offs, holidays, and overtime.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-attendance/overtime/</div>
+                        <div class="description">
+                            Get overtime details for a specific month with date-wise hours.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-legend">
+                    <h3 style="width: 100%; margin-bottom: 10px;">Attendance Status Codes:</h3>
+                    <div class="status-item">
+                        <span class="status-badge present">P</span>
+                        <span>Present</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-badge absent">A</span>
+                        <span>Absent</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-badge weekly-off">WO</span>
+                        <span>Weekly Off</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-badge holiday">H</span>
+                        <span>Holiday</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-badge half-day">HD</span>
+                        <span>Half Day</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports APIs -->
+            <div class="section" id="reports">
+                <h2>📊 6. Reports APIs</h2>
+                <div class="api-grid">
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-reports/list/</div>
+                        <div class="description">
+                            Get list of all generated reports for the employee.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-reports/salary-statement/</div>
+                        <div class="description">
+                            Get yearly/quarterly salary statement report.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-reports/deduction-statement/</div>
+                        <div class="description">
+                            Get deduction statement for PF, ESI, PT, LWF contributions.
+                        </div>
+                    </div>
+                    <div class="api-card">
+                        <span class="method get">GET</span>
+                        <div class="endpoint">/api/employee-reports/{id}/download/</div>
+                        <div class="description">
+                            Download any report by its ID as PDF.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 HRMS Employee Dashboard | All Rights Reserved</p>
+            <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+                📚 For detailed documentation, see: 
+                <strong>EMPLOYEE_DASHBOARD_API.md</strong> and 
+                <strong>EMPLOYEE_DASHBOARD_QUICK_REFERENCE.md</strong>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

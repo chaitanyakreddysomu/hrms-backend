@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Dashboard APIs - HRMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #f5576c;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        .section {
+            margin: 40px 0;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #f5576c;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .api-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(550px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .api-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .api-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .method {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-bottom: 12px;
+        }
+
+        .method.get {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .method.post {
+            background: #28a745;
+            color: white;
+        }
+
+        .method.put {
+            background: #007bff;
+            color: white;
+        }
+
+        .endpoint {
+            font-family: 'Courier New', monospace;
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
+        .request-body, .response, .example-code {
+            margin: 15px 0;
+        }
+
+        h4 {
+            color: #f5576c;
+            margin: 10px 0;
+            font-size: 1em;
+        }
+
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border: 2px solid #0c5460;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .info-box h3 {
+            color: #0c5460;
+            margin-bottom: 15px;
+        }
+
+        .info-box p, .info-box ul {
+            color: #0c5460;
+            line-height: 1.8;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .info-box li {
+            margin: 8px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 1.1em;
+        }
+
+        footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            text-align: center;
+            color: #666;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+
+        .toc h3 {
+            color: #f5576c;
+            margin-bottom: 15px;
+        }
+
+        .toc ul {
+            list-style: none;
+        }
+
+        .toc li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .toc a {
+            color: #f5576c;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .toc a:hover {
+            color: #f093fb;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border: 2px solid #856404;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .warning-box p {
+            color: #856404;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 25px 0;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👨‍💼 Supervisor Dashboard APIs</h1>
+            <p class="subtitle">Team Management & Performance Monitoring System</p>
+            <div>
+                <span class="badge">12 Endpoints</span>
+                <span class="badge">JWT Authentication</span>
+                <span class="badge">Team-Focused</span>
+                <span class="badge">Real-time Data</span>
+            </div>
+        </header>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h3>📋 Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#team-overview">Team Overview API</a></li>
+                <li><a href="#team-members">Team Members API</a></li>
+                <li><a href="#attendance">Attendance Management APIs (3)</a></li>
+                <li><a href="#overtime">Overtime Management APIs (2)</a></li>
+                <li><a href="#performance">Team Performance API</a></li>
+                <li><a href="#quick-actions">Quick Actions API</a></li>
+                <li><a href="#authentication">Authentication</a></li>
+            </ul>
+        </div>
+
+        <!-- Overview -->
+        <div id="overview" class="section">
+            <h2>📊 Overview</h2>
+            <p style="font-size: 1.1em; color: #666; margin-bottom: 20px;">
+                Supervisor Dashboard APIs enable team leads and supervisors to manage their teams effectively 
+                with real-time attendance tracking, performance monitoring, and comprehensive reporting capabilities.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-item">👥 Team Management</div>
+                <div class="feature-item">📅 Attendance Tracking</div>
+                <div class="feature-item">⏰ Overtime Management</div>
+                <div class="feature-item">📊 Performance Analytics</div>
+                <div class="feature-item">🔄 Bulk Operations</div>
+                <div class="feature-item">⚡ Quick Actions</div>
+            </div>
+
+            <div class="warning-box">
+                <h3>🔐 Access Control - STRICT ROLE-BASED</h3>
+                <p>
+                    <strong>Who can access:</strong> <span style="color: #d9534f; font-weight: bold;">Supervisor Role ONLY</span> ✅<br>
+                    <strong>Blocked Roles:</strong> HR, Admin, Manager, Sub-Manager, Employee ❌<br>
+                    <strong>Authentication:</strong> JWT Bearer Token required<br>
+                    <strong>Permission Class:</strong> <code>IsSupervisor</code><br>
+                    <strong>Scope:</strong> Access limited to directly supervised team members<br>
+                    <strong>Base URL:</strong> <code>http://localhost:8000/api/supervisor-dashboard/</code>
+                </p>
+            </div>
+        </div>
+
+        <!-- API Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>12</h3>
+                <p>Total Endpoints</p>
+            </div>
+            <div class="stat-card">
+                <h3>5</h3>
+                <p>GET Requests</p>
+            </div>
+            <div class="stat-card">
+                <h3>4</h3>
+                <p>POST Requests</p>
+            </div>
+        </div>
+
+        <!-- Team Overview -->
+        <div id="team-overview" class="section">
+            <h2>👥 Team Overview</h2>
+            
+            <div class="api-card">
+                <div class="method get">GET</div>
+                <div class="endpoint">/api/supervisor-dashboard/team-overview/</div>
+                <p><strong>Get comprehensive team overview with statistics</strong></p>
+                
+                <div class="request-body">
+                    <h4>Query Parameters (All Optional):</h4>
+                    <pre>month: 10
+year: 2024</pre>
+                </div>
+
+                <div class="response">
+                    <h4>Response (200 OK):</h4>
+                    <pre>{
+  "success": true,
+  "supervisor": {
+    "id": 5,
+    "name": "John Supervisor",
+    "employee_code": "SUP001",
+    "department": "Operations"
+  },
+  "data": {
+    "team": {
+      "total_members": 15,
+      "by_department": [
+        {"officialdetails__department": "Operations", "count": 10},
+        {"officialdetails__department": "Support", "count": 5}
+      ],
+      "by_designation": [
+        {"officialdetails__designation": "Team Lead", "count": 3},
+        {"officialdetails__designation": "Associate", "count": 12}
+      ]
+    },
+    "attendance": {
+      "month": 10,
+      "year": 2024,
+      "statistics": {
+        "present": 280,
+        "absent": 15,
+        "weekly_off": 60,
+        "holiday": 15,
+        "half_day": 5
+      },
+      "attendance_percentage": 94.92,
+      "total_records": 375
+    },
+    "overtime": {
+      "month": 10,
+      "year": 2024,
+      "total_hours": 125.5,
+      "records_count": 45
+    },
+    "top_performers": [
+      {
+        "employee_id": 12,
+        "employee_code": "EMP012",
+        "full_name": "Alice Johnson",
+        "designation": "Team Lead",
+        "present_days": 24
+      }
+    ]
+  }
+}</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>Python Example:</h4>
+                    <pre>import requests
+
+url = 'http://localhost:8000/api/supervisor-dashboard/team-overview/'
+headers = {'Authorization': f'Bearer {supervisor_token}'}
+params = {'month': 10, 'year': 2024}
+
+response = requests.get(url, headers=headers, params=params)
+data = response.json()['data']
+
+print(f"Team Size: {data['team']['total_members']}")
+print(f"Attendance: {data['attendance']['attendance_percentage']}%")
+print(f"Top Performer: {data['top_performers'][0]['full_name']}")</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>JavaScript Example:</h4>
+                    <pre>const params = new URLSearchParams({ month: 10, year: 2024 });
+
+const response = await fetch(
+  `http://localhost:8000/api/supervisor-dashboard/team-overview/?${params}`,
+  { headers: { 'Authorization': `Bearer ${supervisorToken}` } }
+);
+
+const { data } = await response.json();
+console.log('Team Overview:', data);</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Members -->
+        <div id="team-members" class="section">
+            <h2>👨‍👩‍👧‍👦 Team Members</h2>
+            
+            <div class="api-card">
+                <div class="method get">GET</div>
+                <div class="endpoint">/api/supervisor-dashboard/team-members/</div>
+                <p><strong>Get list of all team members with details</strong></p>
+                
+                <div class="request-body">
+                    <h4>Query Parameters (All Optional):</h4>
+                    <pre>department: Operations
+designation: Team Lead</pre>
+                </div>
+
+                <div class="response">
+                    <h4>Response (200 OK):</h4>
+                    <pre>{
+  "success": true,
+  "supervisor": {
+    "id": 5,
+    "name": "John Supervisor"
+  },
+  "total_members": 15,
+  "team_members": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "full_name": "Alice Johnson",
+      "email": "alice@company.com",
+      "mobile_number": "9876543210",
+      "role": "Employee",
+      "department": "Operations",
+      "designation": "Team Lead",
+      "date_of_joining": "2023-01-15",
+      "status": "ACTIVE"
+    }
+  ]
+}</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>Python Example:</h4>
+                    <pre>response = requests.get(
+    'http://localhost:8000/api/supervisor-dashboard/team-members/',
+    headers={'Authorization': f'Bearer {supervisor_token}'},
+    params={'department': 'Operations'}
+)
+
+team = response.json()['team_members']
+for member in team:
+    print(f"{member['full_name']} - {member['designation']}")</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Management -->
+        <div id="attendance" class="section">
+            <h2>📅 Attendance Management</h2>
+            
+            <div class="api-grid">
+                <!-- Mark Team Attendance -->
+                <div class="api-card">
+                    <div class="method post">POST</div>
+                    <div class="endpoint">/api/supervisor-dashboard/mark-team-attendance/</div>
+                    <p><strong>Mark attendance for a team member</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Request Body:</h4>
+                        <pre>{
+  "employee_id": 12,
+  "date": "2024-10-07",
+  "status": "P"
+}</pre>
+                        <p style="margin-top: 10px;"><strong>Status Values:</strong></p>
+                        <ul style="margin-left: 20px;">
+                            <li>P - Present</li>
+                            <li>A - Absent</li>
+                            <li>WO - Weekly Off</li>
+                            <li>H - Holiday</li>
+                            <li>HD - Half Day</li>
+                        </ul>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (201 Created):</h4>
+                        <pre>{
+  "success": true,
+  "message": "Attendance marked successfully",
+  "data": {
+    "id": 145,
+    "employee": 12,
+    "date": "2024-10-07",
+    "status": "P"
+  }
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>JavaScript Example:</h4>
+                        <pre>const response = await fetch(
+  'http://localhost:8000/api/supervisor-dashboard/mark-team-attendance/',
+  {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${supervisorToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      employee_id: 12,
+      date: '2024-10-07',
+      status: 'P'
+    })
+  }
+);
+
+const result = await response.json();
+console.log(result.message);</pre>
+                    </div>
+                </div>
+
+                <!-- Bulk Mark Team Attendance -->
+                <div class="api-card">
+                    <div class="method post">POST</div>
+                    <div class="endpoint">/api/supervisor-dashboard/bulk-mark-team-attendance/</div>
+                    <p><strong>Mark attendance for multiple team members</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Request Body:</h4>
+                        <pre>{
+  "date": "2024-10-07",
+  "attendance_records": [
+    {"employee_id": 12, "status": "P"},
+    {"employee_id": 13, "status": "P"},
+    {"employee_id": 14, "status": "A"}
+  ]
+}</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (200 OK):</h4>
+                        <pre>{
+  "success": true,
+  "message": "Bulk attendance marking completed",
+  "summary": {
+    "created": 2,
+    "updated": 1,
+    "errors": 0
+  },
+  "errors": null
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>data = {
+    'date': '2024-10-07',
+    'attendance_records': [
+        {'employee_id': 12, 'status': 'P'},
+        {'employee_id': 13, 'status': 'P'}
+    ]
+}
+
+response = requests.post(
+    'http://localhost:8000/api/supervisor-dashboard/bulk-mark-team-attendance/',
+    headers={'Authorization': f'Bearer {supervisor_token}'},
+    json=data
+)
+
+print(response.json()['summary'])</pre>
+                    </div>
+                </div>
+
+                <!-- Team Attendance Report -->
+                <div class="api-card">
+                    <div class="method get">GET</div>
+                    <div class="endpoint">/api/supervisor-dashboard/team-attendance-report/</div>
+                    <p><strong>Get detailed attendance report for team</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Query Parameters:</h4>
+                        <pre>start_date: 2024-10-01 (required)
+end_date: 2024-10-31 (required)
+employee_id: 12 (optional)</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (200 OK):</h4>
+                        <pre>{
+  "success": true,
+  "supervisor": {
+    "id": 5,
+    "name": "John Supervisor"
+  },
+  "period": {
+    "start_date": "2024-10-01",
+    "end_date": "2024-10-31"
+  },
+  "total_employees": 15,
+  "data": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "employee_name": "Alice Johnson",
+      "designation": "Team Lead",
+      "statistics": {
+        "present": 22,
+        "absent": 2,
+        "weekly_off": 4,
+        "holiday": 2,
+        "half_day": 1
+      },
+      "total_working_days": 23,
+      "attendance_percentage": 91.67
+    }
+  ]
+}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overtime Management -->
+        <div id="overtime" class="section">
+            <h2>⏰ Overtime Management</h2>
+            
+            <div class="api-grid">
+                <!-- Record Team Overtime -->
+                <div class="api-card">
+                    <div class="method post">POST</div>
+                    <div class="endpoint">/api/supervisor-dashboard/record-team-overtime/</div>
+                    <p><strong>Record overtime hours for team member</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Request Body:</h4>
+                        <pre>{
+  "employee_id": 12,
+  "date": "2024-10-07",
+  "hours": 3.5
+}</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (201 Created):</h4>
+                        <pre>{
+  "success": true,
+  "message": "Overtime recorded successfully",
+  "data": {
+    "id": 45,
+    "employee": 12,
+    "date": "2024-10-07",
+    "hours": 3.5
+  }
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>Python Example:</h4>
+                        <pre>response = requests.post(
+    'http://localhost:8000/api/supervisor-dashboard/record-team-overtime/',
+    headers={'Authorization': f'Bearer {supervisor_token}'},
+    json={
+        'employee_id': 12,
+        'date': '2024-10-07',
+        'hours': 3.5
+    }
+)
+print(response.json()['message'])</pre>
+                    </div>
+                </div>
+
+                <!-- Team Overtime Report -->
+                <div class="api-card">
+                    <div class="method get">GET</div>
+                    <div class="endpoint">/api/supervisor-dashboard/team-overtime-report/</div>
+                    <p><strong>Get overtime report for team</strong></p>
+                    
+                    <div class="request-body">
+                        <h4>Query Parameters:</h4>
+                        <pre>start_date: 2024-10-01 (required)
+end_date: 2024-10-31 (required)
+employee_id: 12 (optional)</pre>
+                    </div>
+
+                    <div class="response">
+                        <h4>Response (200 OK):</h4>
+                        <pre>{
+  "success": true,
+  "supervisor": {
+    "id": 5,
+    "name": "John Supervisor"
+  },
+  "period": {
+    "start_date": "2024-10-01",
+    "end_date": "2024-10-31"
+  },
+  "total_employees": 8,
+  "total_overtime_hours": 125.5,
+  "data": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "employee_name": "Alice Johnson",
+      "designation": "Team Lead",
+      "total_overtime_hours": 28.5,
+      "records_count": 8
+    }
+  ]
+}</pre>
+                    </div>
+
+                    <div class="example-code">
+                        <h4>JavaScript Example:</h4>
+                        <pre>const params = new URLSearchParams({
+  start_date: '2024-10-01',
+  end_date: '2024-10-31'
+});
+
+const response = await fetch(
+  `http://localhost:8000/api/supervisor-dashboard/team-overtime-report/?${params}`,
+  { headers: { 'Authorization': `Bearer ${supervisorToken}` } }
+);
+
+const report = await response.json();
+console.log('Total OT Hours:', report.total_overtime_hours);</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Performance -->
+        <div id="performance" class="section">
+            <h2>📊 Team Performance</h2>
+            
+            <div class="api-card">
+                <div class="method get">GET</div>
+                <div class="endpoint">/api/supervisor-dashboard/team-performance/</div>
+                <p><strong>Get team performance analytics with individual metrics</strong></p>
+                
+                <div class="request-body">
+                    <h4>Query Parameters (All Optional):</h4>
+                    <pre>month: 10
+year: 2024</pre>
+                </div>
+
+                <div class="response">
+                    <h4>Response (200 OK):</h4>
+                    <pre>{
+  "success": true,
+  "supervisor": {
+    "id": 5,
+    "name": "John Supervisor"
+  },
+  "period": {
+    "month": 10,
+    "year": 2024
+  },
+  "total_members": 15,
+  "data": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "full_name": "Alice Johnson",
+      "designation": "Team Lead",
+      "attendance_rate": 95.83,
+      "present_days": 23,
+      "absent_days": 1,
+      "overtime_hours": 28.5,
+      "performance_score": 95.83
+    }
+  ]
+}</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>Python Example:</h4>
+                    <pre>response = requests.get(
+    'http://localhost:8000/api/supervisor-dashboard/team-performance/',
+    headers={'Authorization': f'Bearer {supervisor_token}'},
+    params={'month': 10, 'year': 2024}
+)
+
+performance = response.json()['data']
+for member in performance:
+    print(f"{member['full_name']}: {member['performance_score']}%")</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>JavaScript Example:</h4>
+                    <pre>const response = await fetch(
+  'http://localhost:8000/api/supervisor-dashboard/team-performance/?month=10&year=2024',
+  { headers: { 'Authorization': `Bearer ${supervisorToken}` } }
+);
+
+const { data } = await response.json();
+const topPerformer = data[0]; // Sorted by performance_score
+console.log('Top Performer:', topPerformer.full_name);</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div id="quick-actions" class="section">
+            <h2>⚡ Quick Actions</h2>
+            
+            <div class="api-card">
+                <div class="method get">GET</div>
+                <div class="endpoint">/api/supervisor-dashboard/today-attendance-summary/</div>
+                <p><strong>Get today's attendance summary for quick overview</strong></p>
+                
+                <div class="response">
+                    <h4>Response (200 OK):</h4>
+                    <pre>{
+  "success": true,
+  "supervisor": {
+    "id": 5,
+    "name": "John Supervisor"
+  },
+  "date": "2024-10-07",
+  "summary": {
+    "total_team": 15,
+    "present": 12,
+    "absent": 1,
+    "not_marked": 2
+  },
+  "members_status": [
+    {
+      "employee_id": 12,
+      "employee_code": "EMP012",
+      "full_name": "Alice Johnson",
+      "status": "Present",
+      "status_code": "P"
+    },
+    {
+      "employee_id": 13,
+      "employee_code": "EMP013",
+      "full_name": "Bob Smith",
+      "status": "Not Marked",
+      "status_code": null
+    }
+  ]
+}</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>Python Example:</h4>
+                    <pre>response = requests.get(
+    'http://localhost:8000/api/supervisor-dashboard/today-attendance-summary/',
+    headers={'Authorization': f'Bearer {supervisor_token}'}
+)
+
+summary = response.json()['summary']
+print(f"Present: {summary['present']}/{summary['total_team']}")
+print(f"Not Marked: {summary['not_marked']}")</pre>
+                </div>
+
+                <div class="example-code">
+                    <h4>JavaScript Example:</h4>
+                    <pre>const response = await fetch(
+  'http://localhost:8000/api/supervisor-dashboard/today-attendance-summary/',
+  { headers: { 'Authorization': `Bearer ${supervisorToken}` } }
+);
+
+const { summary, members_status } = await response.json();
+
+// Get not marked employees
+const notMarked = members_status.filter(m => !m.status_code);
+console.log('Not Marked:', notMarked.map(m => m.full_name));</pre>
+                </div>
+            </div>
+
+            <div class="info-box" style="background: #d4edda; border-color: #155724; margin-top: 30px;">
+                <h3 style="color: #155724;">💡 Use Case: Morning Attendance Routine</h3>
+                <ul style="color: #155724;">
+                    <li><strong>Step 1:</strong> Call today-attendance-summary to see who's not marked</li>
+                    <li><strong>Step 2:</strong> Use bulk-mark-team-attendance to mark all present members</li>
+                    <li><strong>Step 3:</strong> Review the summary again to confirm all marked</li>
+                    <li><strong>Result:</strong> Complete team attendance marked in under 2 minutes!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Authentication -->
+        <div id="authentication" class="section">
+            <h2>🔐 Authentication</h2>
+            
+            <div class="info-box">
+                <h3>JWT Token Authentication</h3>
+                <p>All Supervisor Dashboard APIs require JWT authentication with Supervisor role.</p>
+            </div>
+
+            <div class="api-card">
+                <h4>Header Format:</h4>
+                <pre>Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGc...</pre>
+                
+                <h4 style="margin-top: 20px;">Python Example:</h4>
+                <pre>headers = {
+    'Authorization': f'Bearer {supervisor_jwt_token}',
+    'Content-Type': 'application/json'
+}
+
+response = requests.get(
+    'http://localhost:8000/api/supervisor-dashboard/team-overview/',
+    headers=headers
+)</pre>
+
+                <h4 style="margin-top: 20px;">JavaScript Example:</h4>
+                <pre>const headers = {
+    'Authorization': `Bearer ${supervisorJwtToken}`,
+    'Content-Type': 'application/json'
+};
+
+const response = await fetch(
+    'http://localhost:8000/api/supervisor-dashboard/team-overview/',
+    { headers }
+);</pre>
+            </div>
+        </div>
+
+        <!-- API Summary -->
+        <div class="section">
+            <h2>📋 Complete API List</h2>
+            <div style="background: #f8f9fa; padding: 25px; border-radius: 10px;">
+                <h3 style="color: #f5576c; margin-bottom: 15px;">All 12 Endpoints</h3>
+                <pre style="background: #2d2d2d; color: #f8f8f2; padding: 20px;">Team Overview:
+  GET  /api/supervisor-dashboard/team-overview/
+  GET  /api/supervisor-dashboard/team-members/
+
+Attendance Management:
+  POST /api/supervisor-dashboard/mark-team-attendance/
+  POST /api/supervisor-dashboard/bulk-mark-team-attendance/
+  GET  /api/supervisor-dashboard/team-attendance-report/
+
+Overtime Management:
+  POST /api/supervisor-dashboard/record-team-overtime/
+  GET  /api/supervisor-dashboard/team-overtime-report/
+
+Performance & Analytics:
+  GET  /api/supervisor-dashboard/team-performance/
+
+Quick Actions:
+  GET  /api/supervisor-dashboard/today-attendance-summary/</pre>
+            </div>
+        </div>
+
+        <!-- Best Practices -->
+        <div class="info-box" style="background: #fff3cd; border-color: #856404;">
+            <h3 style="color: #856404;">⚠️ Best Practices</h3>
+            <ul style="color: #856404;">
+                <li><strong>Date Format:</strong> Always use YYYY-MM-DD format</li>
+                <li><strong>Team Validation:</strong> APIs automatically validate if employee belongs to supervisor's team</li>
+                <li><strong>Bulk Operations:</strong> Use bulk APIs for better performance when marking multiple attendances</li>
+                <li><strong>Quick Actions:</strong> Use today-attendance-summary for dashboard widgets</li>
+                <li><strong>Date Ranges:</strong> Keep date ranges reasonable (max 3 months) for better performance</li>
+                <li><strong>Error Handling:</strong> Always check success field in response</li>
+                <li><strong>Decimal Hours:</strong> Use decimal format for overtime (3.5 = 3 hours 30 minutes)</li>
+            </ul>
+        </div>
+
+        <!-- Features Summary -->
+        <div class="section">
+            <h2>✨ Key Features</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>✅</h3>
+                    <p>Team-Scoped Access</p>
+                </div>
+                <div class="stat-card">
+                    <h3>📊</h3>
+                    <p>Real-time Analytics</p>
+                </div>
+                <div class="stat-card">
+                    <h3>🔄</h3>
+                    <p>Bulk Operations</p>
+                </div>
+                <div class="stat-card">
+                    <h3>⚡</h3>
+                    <p>Quick Actions</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p><strong>Supervisor Dashboard APIs Documentation</strong></p>
+            <p>Version 1.0 | Last Updated: October 7, 2024</p>
+            <p style="margin-top: 10px;">Designed for team leads and supervisors to manage their teams effectively.</p>
+            <p style="margin-top: 10px; color: #f5576c;">
+                <strong>Related Documentation:</strong> 
+                <a href="hr_dashboard_apis.html" style="color: #f5576c;">HR Dashboard APIs</a> | 
+                <a href="hr_admin_employee_data_apis.html" style="color: #f5576c;">Employee Data APIs</a> |
+                <a href="api_documentation_index.html" style="color: #f5576c;">API Index</a>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

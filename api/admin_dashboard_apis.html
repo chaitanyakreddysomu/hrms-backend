@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard APIs - HRMS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 3px solid #f5576c;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin: 5px;
+        }
+
+        .warning-box {
+            background: #f8d7da;
+            border: 2px solid #d9534f;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+
+        .warning-box h3 {
+            color: #d9534f;
+            margin-bottom: 10px;
+        }
+
+        .warning-box p {
+            color: #721c24;
+        }
+
+        .api-list {
+            margin: 40px 0;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #f5576c;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .api-endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #f5576c;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+
+        .api-endpoint:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .method {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-right: 10px;
+        }
+
+        .method-get {
+            background: #28a745;
+            color: white;
+        }
+
+        .method-post {
+            background: #007bff;
+            color: white;
+        }
+
+        .method-put {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .method-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .endpoint-url {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: #f5576c;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .description {
+            color: #555;
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+
+        .params {
+            margin: 15px 0;
+        }
+
+        .params h4 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+
+        .param-item {
+            background: white;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .param-name {
+            font-weight: bold;
+            color: #f5576c;
+            font-family: 'Courier New', monospace;
+        }
+
+        .param-type {
+            color: #28a745;
+            font-style: italic;
+            margin-left: 10px;
+        }
+
+        .param-required {
+            color: #dc3545;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        .param-optional {
+            color: #6c757d;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        .response-example {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .response-example pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+        }
+
+        .section-nav {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .section-nav h3 {
+            color: #f5576c;
+            margin-bottom: 15px;
+        }
+
+        .section-nav ul {
+            list-style: none;
+            columns: 2;
+        }
+
+        .section-nav li {
+            margin: 5px 0;
+        }
+
+        .section-nav a {
+            color: #f093fb;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .section-nav a:hover {
+            color: #f5576c;
+            text-decoration: underline;
+        }
+
+        .note {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #0c5460;
+        }
+
+        .note strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+            color: #666;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+            color: #f5576c;
+        }
+
+        td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .section-nav ul {
+                columns: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Admin Dashboard APIs</h1>
+            <p class="subtitle">Complete System Management & Administration</p>
+            <div>
+                <span class="badge">REST API</span>
+                <span class="badge">Django REST Framework</span>
+                <span class="badge">Admin Role ONLY</span>
+                <span class="badge">System-Wide Access</span>
+            </div>
+        </header>
+
+        <div class="warning-box">
+            <h3>🔒 ADMIN ROLE REQUIRED - HIGHEST SECURITY LEVEL</h3>
+            <p><strong>⚠️ CRITICAL: These APIs can ONLY be accessed by users with the "Admin" role.</strong></p>
+            <p>Admin has <strong>complete system-wide access</strong> to all companies, all employees, and all data across the entire HRMS.</p>
+            <p><strong>Authentication:</strong> Include JWT token in Authorization header: <code>Authorization: Bearer &lt;your_token&gt;</code></p>
+            <p><strong>Base URL:</strong> <code>/api/admin-dashboard/</code></p>
+            <p><strong>Permission Class:</strong> <code>IsAdmin</code> - Verifies user role is exactly "Admin"</p>
+        </div>
+
+        <div class="note" style="background: #fff3cd; border-color: #ffc107; color: #856404;">
+            <strong>🎯 Access Control Summary:</strong>
+            <ul style="margin: 10px 0 0 20px;">
+                <li><strong>✅ Allowed:</strong> Users with "Admin" role only</li>
+                <li><strong>❌ Denied:</strong> Manager, Sub-Manager, HR, Supervisor, Employee, and unauthenticated users</li>
+                <li><strong>📊 Scope:</strong> Complete system-wide access to ALL companies, ALL employees, ALL data</li>
+                <li><strong>🔐 Security:</strong> Highest privilege level in the system</li>
+            </ul>
+        </div>
+
+        <div class="section-nav">
+            <h3>📑 Quick Navigation</h3>
+            <ul>
+                <li><a href="#security">🔒 Security & Access Control</a></li>
+                <li><a href="#system-overview">System Overview</a></li>
+                <li><a href="#company-management">Company Management</a></li>
+                <li><a href="#employee-management">Employee Management</a></li>
+                <li><a href="#attendance-management">Attendance Management</a></li>
+                <li><a href="#salary-payroll">Salary & Payroll</a></li>
+                <li><a href="#reports">Reports & Analytics</a></li>
+            </ul>
+        </div>
+
+        <!-- ==================== SECURITY ==================== -->
+        <section id="security" class="api-list">
+            <h2>🔒 Security & Access Control</h2>
+
+            <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 5px solid #dc3545;">
+                <h3 style="color: #dc3545; margin-bottom: 15px;">⚠️ ADMIN ROLE ONLY - HIGHEST PRIVILEGE</h3>
+                
+                <div style="background: white; padding: 20px; border-radius: 5px; margin: 15px 0;">
+                    <h4 style="color: #f5576c; margin-bottom: 10px;">Permission Class: <code>IsAdmin</code></h4>
+                    <p style="line-height: 1.8;">
+                        Every endpoint in this API is protected by a custom permission class that verifies:
+                    </p>
+                    <ol style="margin: 10px 0 10px 25px; line-height: 2;">
+                        <li>User is authenticated (valid JWT token)</li>
+                        <li>Employee record exists in the database</li>
+                        <li>Employee role is exactly <strong>"Admin"</strong> (case-sensitive)</li>
+                    </ol>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 5px; margin: 15px 0;">
+                    <h4 style="color: #f5576c; margin-bottom: 10px;">Who Can Access?</h4>
+                    <table>
+                        <tr>
+                            <th>Role</th>
+                            <th style="text-align: center;">Access</th>
+                            <th>Dashboard</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Admin</strong></td>
+                            <td style="text-align: center; color: #28a745; font-weight: bold;">✅ YES</td>
+                            <td>THIS API - Complete system access</td>
+                        </tr>
+                        <tr>
+                            <td>Manager</td>
+                            <td style="text-align: center; color: #dc3545; font-weight: bold;">❌ NO</td>
+                            <td>/api/manager-dashboard/</td>
+                        </tr>
+                        <tr>
+                            <td>Sub-Manager</td>
+                            <td style="text-align: center; color: #dc3545; font-weight: bold;">❌ NO</td>
+                            <td>/api/sub-manager-dashboard/</td>
+                        </tr>
+                        <tr>
+                            <td>HR</td>
+                            <td style="text-align: center; color: #dc3545; font-weight: bold;">❌ NO</td>
+                            <td>/api/hr-dashboard/</td>
+                        </tr>
+                        <tr>
+                            <td>Supervisor</td>
+                            <td style="text-align: center; color: #dc3545; font-weight: bold;">❌ NO</td>
+                            <td>/api/supervisor-dashboard/</td>
+                        </tr>
+                        <tr>
+                            <td>Employee</td>
+                            <td style="text-align: center; color: #dc3545; font-weight: bold;">❌ NO</td>
+                            <td>/api/employee-dashboard/</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="background: #d1ecf1; padding: 15px; border-radius: 5px; border: 1px solid #bee5eb; color: #0c5460;">
+                    <strong>💡 Important:</strong> 
+                    Admin role has the highest privilege level and complete access to ALL system resources.
+                    Use with extreme caution and ensure proper authentication.
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SYSTEM OVERVIEW ==================== -->
+        <section id="system-overview" class="api-list">
+            <h2>🌐 System Overview</h2>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/system-overview/</span>
+                </div>
+                <p class="description">
+                    Get comprehensive system-wide overview including all companies, total employees, 
+                    system-wide attendance, payroll statistics, and recent activities.
+                </p>
+                
+                <div class="params">
+                    <h4>Query Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">month</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Month for statistics (1-12). Default: current month</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">year</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Year for statistics. Default: current year</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>📊 Returns:</strong>
+                    Complete system statistics including all companies (main & sub), total employees across system,
+                    employee distribution by role and department, system-wide attendance metrics, overtime statistics,
+                    total system payroll, and top companies by employee count.
+                </div>
+
+                <div class="response-example">
+                    <pre>{
+  "success": true,
+  "admin": {
+    "id": 1,
+    "name": "System Admin",
+    "employee_code": "ADM001"
+  },
+  "data": {
+    "companies": {
+      "total": 15,
+      "main_companies": 3,
+      "sub_companies": 12,
+      "top_companies": [...]
+    },
+    "employees": {
+      "total": 500,
+      "active": 485,
+      "inactive": 15,
+      "recent_joinings": 25,
+      "by_role": [...],
+      "by_department": [...]
+    },
+    "attendance": {
+      "total_records": 10000,
+      "present": 9200,
+      "absent": 300,
+      "attendance_percentage": 92.0
+    },
+    "salary": {
+      "total_payroll": 25000000.00,
+      "average_salary": 50000.00
+    },
+    "payroll": {
+      "total_gross": 24000000.00,
+      "total_net": 21500000.00
+    }
+  }
+}</pre>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/analytics/dashboard-stats/</span>
+                </div>
+                <p class="description">
+                    Get quick dashboard statistics for admin panel including today's attendance and pending tasks.
+                </p>
+
+                <div class="response-example">
+                    <pre>{
+  "success": true,
+  "data": {
+    "total_companies": 15,
+    "total_employees": 500,
+    "active_employees": 485,
+    "today_present": 450,
+    "today_absent": 35,
+    "pending_payslips": 12,
+    "total_monthly_payroll": 25000000.00
+  }
+}</pre>
+                </div>
+            </div>
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">http://127.0.0.1:8000/api/attendance/checkin_checkout_summary/?company_id=2&subcompany_id=1</span>
+                </div>
+                <p class="description">
+                    Get checkin and checkout data
+                </p>
+
+                <div class="response-example">
+                    <pre>{
+    "date": "2025-10-10",
+    "total_records": 0,
+    "checked_in": 0,
+    "checked_out": 0
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== COMPANY MANAGEMENT ==================== -->
+        <section id="company-management" class="api-list">
+            <h2>🏢 Company Management</h2>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/companies/</span>
+                </div>
+                <p class="description">
+                    Get list of all companies (both main and sub-companies) with employee counts and statistics.
+                </p>
+                
+                <div class="params">
+                    <h4>Query Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">is_main_company</span>
+                        <span class="param-type">boolean</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by company type (true for main companies, false for sub-companies)</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">search</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Search by company name</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Page number. Default: 1</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page_size</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Items per page. Default: 20</p>
+                    </div>
+                </div>
+
+                <div class="response-example">
+                    <pre>{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Main Company Ltd",
+      "address": "123 Main St",
+      "gst_number": "GST123",
+      "is_main_company": true,
+      "employee_count": 200,
+      "active_employee_count": 195
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "page_size": 20,
+    "total": 15,
+    "total_pages": 1
+  }
+}</pre>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/companies/{company_id}/</span>
+                </div>
+                <p class="description">
+                    Get detailed information about a specific company including employee statistics, 
+                    department breakdown, salary information, and sub-companies (if applicable).
+                </p>
+                
+                <div class="params">
+                    <h4>Path Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">company_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-required">required</span>
+                        <p>Company ID</p>
+                    </div>
+                </div>
+
+                <div class="response-example">
+                    <pre>{
+  "success": true,
+  "data": {
+    "company": {...},
+    "statistics": {
+      "total_employees": 200,
+      "active_employees": 195,
+      "by_department": [...],
+      "by_role": [...],
+      "total_payroll": 10000000.00,
+      "average_salary": 50000.00
+    },
+    "sub_companies": [...]
+  }
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== EMPLOYEE MANAGEMENT ==================== -->
+        <section id="employee-management" class="api-list">
+            <h2>👥 Employee Management</h2>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/employees/</span>
+                </div>
+                <p class="description">
+                    Get list of ALL employees across ALL companies in the entire system with advanced filtering options.
+                </p>
+                
+                <div class="params">
+                    <h4>Query Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">company_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by specific company</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">department</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by department</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">designation</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by designation</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">role</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by role (Admin, Manager, Sub-Manager, HR, Supervisor, Employee)</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">status</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by status (ACTIVE, INACTIVE, LEFT)</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">search</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Search by name, email, or employee code</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Page number. Default: 1</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page_size</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Items per page. Default: 50</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/employees/{employee_id}/</span>
+                </div>
+                <p class="description">
+                    Get complete detailed information about ANY employee in the system including profile, 
+                    official details, salary, attendance history, payslips, and documents.
+                </p>
+                
+                <div class="params">
+                    <h4>Path Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">employee_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-required">required</span>
+                        <p>Employee ID</p>
+                    </div>
+                </div>
+
+                <div class="note">
+                    <strong>📋 Returns:</strong>
+                    Complete employee information including personal details, official details, salary structure,
+                    recent attendance (last 30 days), recent payslips (last 6 months), and document count.
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== ATTENDANCE MANAGEMENT ==================== -->
+        <section id="attendance-management" class="api-list">
+            <h2>📅 Attendance Management</h2>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/attendance/</span>
+                </div>
+                <p class="description">
+                    Get system-wide attendance records for ALL employees across ALL companies.
+                </p>
+                
+                <div class="params">
+                    <h4>Query Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">employee_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by specific employee</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">company_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by specific company</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">department</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by department</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">date_from</span>
+                        <span class="param-type">date</span>
+                        <span class="param-optional">optional</span>
+                        <p>Start date (YYYY-MM-DD)</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">date_to</span>
+                        <span class="param-type">date</span>
+                        <span class="param-optional">optional</span>
+                        <p>End date (YYYY-MM-DD)</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">status</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by status (P, A, WO, H, HD)</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Page number. Default: 1</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page_size</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Items per page. Default: 100</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/attendance/statistics/</span>
+                </div>
+                <p class="description">
+                    Get system-wide attendance statistics with overall metrics and department-wise breakdown.
+                </p>
+                
+                <div class="params">
+                    <h4>Query Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">month</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-required">required</span>
+                        <p>Month (1-12)</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">year</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-required">required</span>
+                        <p>Year</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">company_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by specific company</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">department</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by department</p>
+                    </div>
+                </div>
+
+                <div class="response-example">
+                    <pre>{
+  "success": true,
+  "data": {
+    "month": 10,
+    "year": 2025,
+    "overall": {
+      "total_records": 10000,
+      "present": 9200,
+      "absent": 300,
+      "weekly_off": 400,
+      "holiday": 100
+    },
+    "by_department": [
+      {
+        "department": "IT",
+        "employee_count": 100,
+        "present": 2000,
+        "absent": 50,
+        "total_records": 2100
+      }
+    ]
+  }
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SALARY & PAYROLL ==================== -->
+        <section id="salary-payroll" class="api-list">
+            <h2>💰 Salary & Payroll Management</h2>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/salary-structures/</span>
+                </div>
+                <p class="description">
+                    Get system-wide salary structures for ALL employees with salary range filtering.
+                </p>
+                
+                <div class="params">
+                    <h4>Query Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">employee_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by specific employee</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">company_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by specific company</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">department</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by department</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">min_salary</span>
+                        <span class="param-type">decimal</span>
+                        <span class="param-optional">optional</span>
+                        <p>Minimum CTC filter</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">max_salary</span>
+                        <span class="param-type">decimal</span>
+                        <span class="param-optional">optional</span>
+                        <p>Maximum CTC filter</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Page number. Default: 1</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page_size</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Items per page. Default: 50</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/payslips/</span>
+                </div>
+                <p class="description">
+                    Get system-wide payslips for ALL employees across ALL companies.
+                </p>
+                
+                <div class="params">
+                    <h4>Query Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">employee_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by specific employee</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">company_id</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by specific company</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">month</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by month (1-12)</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">year</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by year</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">department</span>
+                        <span class="param-type">string</span>
+                        <span class="param-optional">optional</span>
+                        <p>Filter by department</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Page number. Default: 1</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page_size</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Items per page. Default: 100</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== REPORTS & ANALYTICS ==================== -->
+        <section id="reports" class="api-list">
+            <h2>📊 Reports & Analytics</h2>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/reports/company-wise/</span>
+                </div>
+                <p class="description">
+                    Get comprehensive company-wise report for ALL companies with employee, attendance, and payroll statistics.
+                </p>
+                
+                <div class="params">
+                    <h4>Query Parameters:</h4>
+                    <div class="param-item">
+                        <span class="param-name">month</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Month for report (1-12). Default: current month</p>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">year</span>
+                        <span class="param-type">integer</span>
+                        <span class="param-optional">optional</span>
+                        <p>Year for report. Default: current year</p>
+                    </div>
+                </div>
+
+                <div class="response-example">
+                    <pre>{
+  "success": true,
+  "data": {
+    "month": 10,
+    "year": 2025,
+    "companies": [
+      {
+        "company_id": 1,
+        "company_name": "Main Company",
+        "is_main_company": true,
+        "total_employees": 200,
+        "active_employees": 195,
+        "attendance": {
+          "present": 3900,
+          "absent": 100
+        },
+        "salary": {
+          "total_payroll": 10000000.00,
+          "average_salary": 51282.05
+        },
+        "payroll_paid": 9500000.00
+      }
+    ]
+  }
+}</pre>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/reports/role-wise/</span>
+                </div>
+                <p class="description">
+                    Get role-wise employee distribution and salary statistics across the entire system.
+                </p>
+
+                <div class="response-example">
+                    <pre>{
+  "success": true,
+  "data": {
+    "roles": [
+      {
+        "role": "Employee",
+        "total_count": 400,
+        "active_count": 385,
+        "total_payroll": 19250000.00,
+        "average_salary": 50000.00
+      },
+      {
+        "role": "Manager",
+        "total_count": 10,
+        "active_count": 10,
+        "total_payroll": 1200000.00,
+        "average_salary": 120000.00
+      }
+    ]
+  }
+}</pre>
+                </div>
+            </div>
+
+            <div class="api-endpoint">
+                <div>
+                    <span class="method method-get">GET</span>
+                    <span class="endpoint-url">/api/admin-dashboard/analytics/trends/</span>
+                </div>
+                <p class="description">
+                    Get system-wide analytics trends for the last 12 months showing employee growth, 
+                    attendance rates, and payroll trends.
+                </p>
+
+                <div class="note">
+                    <strong>📈 Perfect for:</strong>
+                    Visualizing system growth, creating executive dashboards, identifying trends across the organization,
+                    forecasting, and strategic planning.
+                </div>
+
+                <div class="response-example">
+                    <pre>{
+  "success": true,
+  "data": {
+    "trends": [
+      {
+        "month": 11,
+        "year": 2024,
+        "month_name": "November 2024",
+        "employee_count": 450,
+        "attendance_rate": 94.5,
+        "total_payroll": 22500000.00
+      },
+      {
+        "month": 12,
+        "year": 2024,
+        "month_name": "December 2024",
+        "employee_count": 475,
+        "attendance_rate": 93.2,
+        "total_payroll": 23750000.00
+      },
+      ...
+    ]
+  }
+}</pre>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p><strong>Admin Dashboard API Documentation</strong></p>
+            <p>HRMS - Human Resource Management System</p>
+            <p>Version 1.0 | Last Updated: October 2025</p>
+            <p style="margin-top: 20px; color: #999;">
+                ⚠️ Admin access provides complete system-wide control. Use responsibly and ensure proper security measures.
+            </p>
+            <p style="margin-top: 10px; color: #999;">
+                For technical support or API access issues, contact your system administrator.
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
