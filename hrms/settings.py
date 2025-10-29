@@ -73,17 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'hrms.wsgi.application'
 
-# Database
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'jobWebsite',
-#         'USER': 'root',
-#         'PASSWORD': 'root',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#     }
-# }
 
 DATABASES = {
     'default': {
@@ -154,27 +143,6 @@ SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-fallback-secret-key'
 
 
 
-# Tell Django to use S3 for media files
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# DEFAULT_FILE_STORAGE = 'job_portal.storage_backends.PrivateMediaStorage'
-
-# Optional: if you want media files to be publicly accessible via URL
-AWS_QUERYSTRING_AUTH = False
-
-
-
-
-RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
-RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
-
-
-CASHFREE_APP_ID = os.getenv("CASHFREE_APP_ID")
-CASHFREE_SECRET_KEY = os.getenv("CASHFREE_SECRET_KEY")
-FRONTEND_URL = os.getenv("FRONTEND_URL")
-BACKEND_URL = "http://localhost:8000"
-DEBUG = True
-
-
 
 
 
@@ -241,14 +209,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'staticfiles'),
 ]
 
-# Email Configuration
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Configure as per your email provider
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'
-EMAIL_HOST_PASSWORD = 'your-app-password'
-DEFAULT_FROM_EMAIL = 'your-email@gmail.com'
+
 
 # Logging Configuration
 LOGGING = {
