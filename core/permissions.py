@@ -136,6 +136,6 @@ class IsHROrAdminOrSupervisor(permissions.BasePermission):
             employee = Employee.objects.get(
                 Q(employee_code=request.user.username) | Q(email=request.user.email)
             )
-            return employee.role in ['Admin', 'Manager', 'Sub-Manager', 'HR', 'Supervisor']
+            return employee.role in ['Admin', 'HR', 'Supervisor']
         except Employee.DoesNotExist:
             return False

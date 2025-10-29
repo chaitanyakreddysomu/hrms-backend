@@ -138,6 +138,8 @@ urlpatterns = [
     path('api/accessible-subcompanies/', views.get_accessible_subcompanies, name='accessible-subcompanies'),
     path('api/subcompany-employees/', views.get_employees_by_subcompany, name='subcompany-employees'),
     path('api/creatable-roles/', views.get_creatable_roles, name='creatable-roles'),
+    path('api/assign-supervisor/', views.assign_supervisor, name='assign-supervisor'),
+    path('api/manage-supervisor-companies/', views.manage_supervisor_companies, name='manage-supervisor-companies'),
 
 ] + admin_setup_urlpatterns
 

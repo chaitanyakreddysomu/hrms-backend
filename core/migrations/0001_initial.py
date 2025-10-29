@@ -167,7 +167,7 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=254)),
                 ('current_address', models.TextField()),
                 ('permanent_address', models.TextField()),
-                ('role', models.CharField(choices=[('Admin', 'Admin'), ('Manager', 'Manager'), ('Sub-Manager', 'Sub-Manager'), ('HR', 'HR'), ('Supervisor', 'Supervisor'), ('Employee', 'Employee')], max_length=20)),
+                ('role', models.CharField(choices=[('Admin', 'Admin'), ('HR', 'HR'), ('Supervisor', 'Supervisor'), ('Employee', 'Employee')], max_length=20)),
                 ('status', models.CharField(default='ACTIVE', max_length=20)),
                 ('photo', models.ImageField(blank=True, null=True, upload_to='employee_photos/')),
                 ('client_code', models.CharField(blank=True, max_length=30, null=True)),
@@ -215,7 +215,7 @@ class Migration(migrations.Migration):
             name='ApprovalWorkflow',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('approval_type', models.CharField(choices=[('employee', 'Employee Creation'), ('hr', 'HR Account Creation'), ('supervisor', 'Supervisor Account Creation'), ('sub_manager', 'Sub-Manager Account Creation'), ('manager', 'Manager Account Creation'), ('sub_company', 'Sub-Company Creation')], default='employee', help_text='Type of approval request', max_length=30)),
+                ('approval_type', models.CharField(choices=[('employee', 'Employee Creation'), ('hr', 'HR Account Creation'), ('supervisor', 'Supervisor Account Creation'), ('sub_company', 'Sub-Company Creation')], default='employee', help_text='Type of approval request', max_length=30)),
                 ('status', models.CharField(choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected'), ('cancelled', 'Cancelled')], default='pending', help_text='Current status of the workflow', max_length=30)),
                 ('current_stage', models.CharField(choices=[('sub_manager', 'Awaiting Sub-Company Manager'), ('main_manager', 'Awaiting Main Company Manager'), ('admin', 'Awaiting Admin'), ('completed', 'Completed')], default='sub_manager', help_text='Current approval stage in the workflow', max_length=30)),
                 ('request_data', models.JSONField(default=dict, help_text='Data for the creation request')),

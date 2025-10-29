@@ -82,9 +82,10 @@ class EmployeeDashboardViewSet(viewsets.ViewSet):
                 date__year=current_year
             )
             
-            present_days = attendance_records.filter(status='P').count()
-            absent_days = attendance_records.filter(status='A').count()
-            half_days = attendance_records.filter(status='HD').count()
+            # Count days by checking both shift status fields
+            present_days = attendance_records.filter(Q(shift_1_status='P') | Q(shift_2_status='P')).count()
+            absent_days = attendance_records.filter(Q(shift_1_status='A') | Q(shift_2_status='A')).count()
+            half_days = attendance_records.filter(Q(shift_1_status='HD') | Q(shift_2_status='HD')).count()
             
             # Calculate OT hours for current month
             ot_hours = OvertimeRecord.objects.filter(
@@ -1031,16 +1032,30 @@ class EmployeeAttendanceViewSet(viewsets.ViewSet):
                 date__month=month
             ).order_by('date')
             
-            # Create calendar data
+            # Create calendar data with shift-1, shift-2, and status_display
             calendar_data = []
             for record in attendance_records:
+                day_name = record.date.strftime("%A")
+                shift_1 = record.shift_1_status
+                shift_2 = record.shift_2_status
+                # status_display logic
+                if day_name.lower() == 'sunday':
+                    status_display = 'sunday'
+                elif shift_1 == 'P' and shift_2 == 'P':
+                    status_display = 'present'
+                elif shift_1 == 'A' and shift_2 == 'A':
+                    status_display = ''
+                elif (shift_1 == 'P' and shift_2 == 'A') or (shift_1 == 'A' and shift_2 == 'P'):
+                    status_display = 'half day'
+                else:
+                    status_display = ''
                 calendar_data.append({
                     "date": record.date,
-                    "day": record.date.strftime("%A"),
-                    "status": record.status,
-                    "status_display": record.get_status_display(),
+                    "day": day_name,
+                    "shift-1": shift_1,
+                    "shift-2": shift_2,
+                    "status_display": status_display,
                 })
-            
             return Response({
                 "year": year,
                 "month": month,
@@ -1084,15 +1099,16 @@ class EmployeeAttendanceViewSet(viewsets.ViewSet):
                 date__month=month
             )
             
-            # Calculate summary
+            # Calculate summary - check both shift status fields
+            # Exclude records where either shift is weekly off or holiday
             total_working_days = attendance_records.exclude(
-                status__in=['WO', 'H']
+                Q(shift_1_status__in=['WO', 'H']) | Q(shift_2_status__in=['WO', 'H'])
             ).count()
-            days_present = attendance_records.filter(status='P').count()
-            days_absent = attendance_records.filter(status='A').count()
-            weekly_offs = attendance_records.filter(status='WO').count()
-            holidays = attendance_records.filter(status='H').count()
-            half_days = attendance_records.filter(status='HD').count()
+            days_present = attendance_records.filter(Q(shift_1_status='P') | Q(shift_2_status='P')).count()
+            days_absent = attendance_records.filter(Q(shift_1_status='A') | Q(shift_2_status='A')).count()
+            weekly_offs = attendance_records.filter(Q(shift_1_status='WO') | Q(shift_2_status='WO')).count()
+            holidays = attendance_records.filter(Q(shift_1_status='H') | Q(shift_2_status='H')).count()
+            half_days = attendance_records.filter(Q(shift_1_status='HD') | Q(shift_2_status='HD')).count()
             
             # Get overtime hours
             ot_hours = OvertimeRecord.objects.filter(

@@ -132,10 +132,10 @@ class ApprovalWorkflowViewSet(viewsets.ViewSet):
             }, status=status.HTTP_403_FORBIDDEN)
         
         # Only HR can create employee requests
-        if current_employee.role not in ['HR', 'Manager', 'Sub-Manager']:
+        if current_employee.role not in ['HR']:
             return Response({
                 'success': False,
-                'error': 'Only HR, Manager, or Sub-Manager can create employee accounts'
+                'error': 'Only HR can create employee accounts'
             }, status=status.HTTP_403_FORBIDDEN)
         
         employee_data = request.data.get('employee_data', {})
@@ -254,11 +254,11 @@ class ApprovalWorkflowViewSet(viewsets.ViewSet):
                 'error': 'Employee profile not found'
             }, status=status.HTTP_403_FORBIDDEN)
         
-        # Only Manager or Sub-Manager can create HR/Supervisor accounts
-        if current_employee.role not in ['Manager', 'Sub-Manager']:
+        # Only Admin or HR can create HR/Supervisor accounts
+        if current_employee.role not in ['Admin', 'HR']:
             return Response({
                 'success': False,
-                'error': 'Only Manager or Sub-Manager can create HR/Supervisor accounts'
+                'error': 'Only Admin or HR can create HR/Supervisor accounts'
             }, status=status.HTTP_403_FORBIDDEN)
         
         employee_data = request.data.get('employee_data', {})

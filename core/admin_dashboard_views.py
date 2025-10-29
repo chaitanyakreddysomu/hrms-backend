@@ -125,11 +125,11 @@ class AdminDashboardViewSet(viewsets.ViewSet):
             date__range=[start_date, end_date]
         ).aggregate(
             total_records=Count('id'),
-            present=Count('id', filter=Q(status='P')),
-            absent=Count('id', filter=Q(status='A')),
-            weekly_off=Count('id', filter=Q(status='WO')),
-            holiday=Count('id', filter=Q(status='H')),
-            half_day=Count('id', filter=Q(status='HD'))
+            present=Count('id', filter=(Q(shift_1_status='P') | Q(shift_2_status='P'))),
+            absent=Count('id', filter=(Q(shift_1_status='A') | Q(shift_2_status='A'))),
+            weekly_off=Count('id', filter=(Q(shift_1_status='WO') | Q(shift_2_status='WO'))),
+            holiday=Count('id', filter=(Q(shift_1_status='H') | Q(shift_2_status='H'))),
+            half_day=Count('id', filter=(Q(shift_1_status='HD') | Q(shift_2_status='HD')))
         )
 
         total_att_records = attendance_stats['total_records'] or 0
@@ -373,6 +373,95 @@ class AdminDashboardViewSet(viewsets.ViewSet):
                 'sub_companies': sub_companies_data if company.is_main_company else None
             }
         })
+
+    @action(detail=False, methods=['post'], url_path='add-supervisor')
+    def add_supervisor(self, request):
+        """
+        Assign one or more companies to a supervisor (supervised_companies M2M).
+
+        Request body:
+        {
+            "supervisor_id": 123,
+            "company_id": 45                 # single id OR
+            "company_ids": [45, 46, 47]     # list of ids OR
+            "company_ids": "45,46,47"     # comma-separated string
+        }
+
+        Response: {
+            success: True,
+            supervisor: { ... },
+            companies: [ { ... }, ... ]
+        }
+        """
+        admin = self._get_admin_employee(request)
+        if not admin:
+            return Response({'success': False, 'error': 'Admin not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        supervisor_id = request.data.get('supervisor_id') or request.data.get('employee_id')
+        if not supervisor_id:
+            return Response({'success': False, 'error': 'supervisor_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Normalize company ids input
+        comp_single = request.data.get('company_id')
+        comp_list = request.data.get('company_ids') or request.data.get('companies')
+        company_ids = []
+        if comp_list:
+            if isinstance(comp_list, str):
+                company_ids = [c.strip() for c in comp_list.split(',') if c.strip()]
+            elif isinstance(comp_list, (list, tuple)):
+                company_ids = list(comp_list)
+        elif comp_single is not None:
+            company_ids = [comp_single]
+
+        if not company_ids:
+            return Response({'success': False, 'error': 'company_id or company_ids is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Ensure supervisor exists
+        try:
+            supervisor = Employee.objects.get(id=supervisor_id)
+        except Employee.DoesNotExist:
+            return Response({'success': False, 'error': 'Supervisor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        added_companies = []
+        errors = []
+        for cid in company_ids:
+            try:
+                # accept numeric or string ids
+                cid_int = int(cid)
+            except Exception:
+                errors.append({'company_id': cid, 'error': 'invalid id'})
+                continue
+
+            try:
+                company = Company.objects.get(id=cid_int)
+            except Company.DoesNotExist:
+                errors.append({'company_id': cid_int, 'error': 'company not found'})
+                continue
+
+            # Attach via M2M
+            try:
+                if hasattr(supervisor, 'supervised_companies'):
+                    supervisor.supervised_companies.add(company)
+                else:
+                    # If field missing, return error
+                    errors.append({'company_id': cid_int, 'error': 'supervised_companies M2M not found on Employee'})
+                    continue
+
+                added_companies.append(company)
+            except Exception as e:
+                errors.append({'company_id': cid_int, 'error': str(e)})
+
+        # Return serialized supervisor and companies
+        supervisor_data = EmployeeSerializer(supervisor).data
+        companies_data = [CompanySerializer(c).data for c in added_companies]
+
+        return Response({
+            'success': True,
+            'message': 'Companies assigned to supervisor',
+            'supervisor': supervisor_data,
+            'companies': companies_data,
+            'errors': errors
+        }, status=status.HTTP_200_OK)
 
     # ==================== EMPLOYEE MANAGEMENT ====================
     
@@ -651,11 +740,11 @@ class AdminDashboardViewSet(viewsets.ViewSet):
             date__range=[start_date, end_date]
         ).aggregate(
             total_records=Count('id'),
-            present=Count('id', filter=Q(status='P')),
-            absent=Count('id', filter=Q(status='A')),
-            weekly_off=Count('id', filter=Q(status='WO')),
-            holiday=Count('id', filter=Q(status='H')),
-            half_day=Count('id', filter=Q(status='HD'))
+            present=Count('id', filter=(Q(shift_1_status='P') | Q(shift_2_status='P'))),
+            absent=Count('id', filter=(Q(shift_1_status='A') | Q(shift_2_status='A'))),
+            weekly_off=Count('id', filter=(Q(shift_1_status='WO') | Q(shift_2_status='WO'))),
+            holiday=Count('id', filter=(Q(shift_1_status='H') | Q(shift_2_status='H'))),
+            half_day=Count('id', filter=(Q(shift_1_status='HD') | Q(shift_2_status='HD')))
         )
 
         # Statistics by department
@@ -671,8 +760,8 @@ class AdminDashboardViewSet(viewsets.ViewSet):
                 employee__in=dept_employees,
                 date__range=[start_date, end_date]
             ).aggregate(
-                present=Count('id', filter=Q(status='P')),
-                absent=Count('id', filter=Q(status='A')),
+                present=Count('id', filter=(Q(shift_1_status='P') | Q(shift_2_status='P'))),
+                absent=Count('id', filter=(Q(shift_1_status='A') | Q(shift_2_status='A'))),
                 total=Count('id')
             )
             
@@ -754,11 +843,21 @@ class AdminDashboardViewSet(viewsets.ViewSet):
         end = start + page_size
         total = salary_query.count()
 
-        serializer = SalaryStructureSerializer(salary_query[start:end], many=True)
+        # Serialize and include employee full name and email for convenience in admin UI
+        salary_q_page = salary_query.select_related('employee')[start:end]
+        serializer = SalaryStructureSerializer(salary_q_page, many=True)
+
+        enriched = []
+        for idx, ss in enumerate(salary_q_page):
+            item = serializer.data[idx] if isinstance(serializer.data, list) and idx < len(serializer.data) else {}
+            emp = getattr(ss, 'employee', None)
+            item['employee_full_name'] = getattr(emp, 'full_name', None) if emp else None
+            item['employee_email'] = getattr(emp, 'email', None) if emp else None
+            enriched.append(item)
 
         return Response({
             'success': True,
-            'data': serializer.data,
+            'data': enriched,
             'pagination': {
                 'page': page,
                 'page_size': page_size,
@@ -881,8 +980,8 @@ class AdminDashboardViewSet(viewsets.ViewSet):
                 employee__in=active_employees,
                 date__range=[start_date, end_date]
             ).aggregate(
-                present=Count('id', filter=Q(status='P')),
-                absent=Count('id', filter=Q(status='A'))
+                present=Count('id', filter=(Q(shift_1_status='P') | Q(shift_2_status='P'))),
+                absent=Count('id', filter=(Q(shift_1_status='A') | Q(shift_2_status='A')))
             )
 
             # Salary stats
@@ -1009,7 +1108,7 @@ class AdminDashboardViewSet(viewsets.ViewSet):
             attendance_stats = Attendance.objects.filter(
                 date__range=[start_date, end_date]
             ).aggregate(
-                present=Count('id', filter=Q(status='P')),
+                present=Count('id', filter=(Q(shift_1_status='P') | Q(shift_2_status='P'))),
                 total=Count('id')
             )
 

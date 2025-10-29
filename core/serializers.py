@@ -388,24 +388,50 @@ class IncrementHistorySerializer(serializers.ModelSerializer):
 
 class AttendanceSerializer(serializers.ModelSerializer):
     """Serializer for employee attendance"""
-    status_display = serializers.CharField(source='get_status_display', read_only=True)
-    day_name = serializers.SerializerMethodField()
-    
+    shift_1 = serializers.CharField(source='shift_1_status')
+    shift_2 = serializers.CharField(source='shift_2_status')
+    status_display = serializers.SerializerMethodField()
+    day = serializers.SerializerMethodField()
+
     class Meta:
         model = Attendance
         fields = [
-            'id', 'date', 'status', 'status_display', 'day_name',
+            'id', 'date', 'day', 'shift_1', 'shift_2', 'status_display',
             'check_in_time', 'check_out_time', 'hours_worked'
         ]
         read_only_fields = ['id', 'employee']
-    
-    def get_day_name(self, obj):
-        from datetime import datetime
-        if isinstance(obj.date, str):
-            # Convert string to date object
-            date_obj = datetime.strptime(obj.date, "%Y-%m-%d").date()
-            return date_obj.strftime("%A")
-        return obj.date.strftime("%A")
+
+    def get_day(self, obj):
+        # obj.date may sometimes be a string (from API input) or a date object — normalize both
+        try:
+            d = obj.date
+            if isinstance(d, str):
+                from datetime import datetime
+                d = datetime.fromisoformat(d).date()
+        except Exception:
+            return None
+        return d.strftime("%A")
+
+    def get_status_display(self, obj):
+        try:
+            d = obj.date
+            if isinstance(d, str):
+                from datetime import datetime
+                d = datetime.fromisoformat(d).date()
+            day_name = d.strftime("%A")
+        except Exception:
+            day_name = ''
+        s1 = obj.shift_1_status
+        s2 = obj.shift_2_status
+        if day_name.lower() == 'sunday':
+            return 'sunday'
+        if s1 == 'P' and s2 == 'P':
+            return 'present'
+        if s1 == 'A' and s2 == 'A':
+            return ''
+        if (s1 == 'P' and s2 == 'A') or (s1 == 'A' and s2 == 'P'):
+            return 'half day'
+        return ''
 
 
 class OvertimeRecordSerializer(serializers.ModelSerializer):

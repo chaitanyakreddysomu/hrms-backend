@@ -17,7 +17,7 @@ from .models import (
 )
 from .serializers import (
     EmployeeSerializer, AttendanceSerializer, OvertimeRecordSerializer,
-    OfficialDetailsSerializer
+    OfficialDetailsSerializer, CompanySerializer
 )
 from rest_framework.permissions import IsAuthenticated
 
@@ -68,12 +68,24 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
         """Get all team members under this supervisor"""
         if not supervisor:
             return Employee.objects.none()
-        
-        # Get employees where supervisor_name matches this supervisor's name
-        return Employee.objects.filter(
-            officialdetails__supervisor_name=supervisor.full_name,
-            status='ACTIVE'
+        # Build a combined query so a supervisor sees members when any of the following is true:
+        # 1) OfficialDetails.supervisor_name matches supervisor.full_name (legacy behavior)
+        # 2) The employee's sub_company is in supervisor.supervised_companies (M2M access)
+        # 3) The employee's main_company AND sub_company both match the supervisor's (explicit company match)
+        # Only ACTIVE employees are returned.
+        try:
+            supervised_companies_qs = supervisor.supervised_companies.all()
+        except Exception:
+            supervised_companies_qs = Company.objects.none()
+
+        team_q = (
+            Q(officialdetails__supervisor_name=supervisor.full_name) |
+            Q(sub_company__in=supervised_companies_qs) |
+            (Q(main_company=supervisor.main_company) & Q(sub_company=supervisor.sub_company))
         )
+
+        # Only return regular employees (exclude other supervisors/HR/admin roles)
+        return Employee.objects.filter(team_q, status='ACTIVE', role='Employee').distinct()
 
     # ==================== TEAM OVERVIEW ====================
     
@@ -132,11 +144,11 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
             )
             
             attendance_stats = {
-                'present': attendance_records.filter(status='P').count(),
-                'absent': attendance_records.filter(status='A').count(),
-                'weekly_off': attendance_records.filter(status='WO').count(),
-                'holiday': attendance_records.filter(status='H').count(),
-                'half_day': attendance_records.filter(status='HD').count(),
+                'present': attendance_records.filter(Q(shift_1_status='P') | Q(shift_2_status='P')).count(),
+                'absent': attendance_records.filter(Q(shift_1_status='A') | Q(shift_2_status='A')).count(),
+                'weekly_off': attendance_records.filter(Q(shift_1_status='WO') | Q(shift_2_status='WO')).count(),
+                'holiday': attendance_records.filter(Q(shift_1_status='H') | Q(shift_2_status='H')).count(),
+                'half_day': attendance_records.filter(Q(shift_1_status='HD') | Q(shift_2_status='HD')).count(),
             }
             
             # Calculate attendance percentage
@@ -155,7 +167,7 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
             top_performers = []
             for member in team_members[:5]:
                 member_attendance = attendance_records.filter(employee=member)
-                present_count = member_attendance.filter(status='P').count()
+                present_count = member_attendance.filter(Q(shift_1_status='P') | Q(shift_2_status='P')).count()
                 top_performers.append({
                     'employee_id': member.id,
                     'employee_code': member.employee_code,
@@ -270,6 +282,38 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['get'], url_path='supervising-companies')
+    def supervising_companies(self, request):
+        """
+        Return a list of companies this supervisor supervises (via M2M).
+        Accessible only to authenticated supervisors (IsSupervisor permission applies).
+        """
+        try:
+            supervisor = self._get_supervisor_employee(request)
+            if not supervisor:
+                return Response({
+                    'success': False,
+                    'error': 'Supervisor record not found'
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            companies_qs = supervisor.supervised_companies.all()
+            serializer = CompanySerializer(companies_qs, many=True)
+
+            return Response({
+                'success': True,
+                'supervisor': {
+                    'id': supervisor.id,
+                    'name': supervisor.full_name
+                },
+                'supervising_companies': serializer.data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     # ==================== ATTENDANCE MANAGEMENT ====================
     
     @action(detail=False, methods=['post'], url_path='mark-team-attendance')
@@ -322,10 +366,11 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Create or update attendance
+            # Mark full-day status by setting both shift status fields
             attendance, created = Attendance.objects.update_or_create(
                 employee=employee,
                 date=date_obj,
-                defaults={'status': attendance_status}
+                defaults={'shift_1_status': attendance_status, 'shift_2_status': attendance_status}
             )
             
             serializer = AttendanceSerializer(attendance)
@@ -341,6 +386,149 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
                 'success': False,
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'], url_path='shift-accounts')
+    def shift_accounts(self, request):
+        """
+        Supervisor-facing API to view per-shift attendance accounts for their team.
+
+        Query params:
+        - date (optional, YYYY-MM-DD) default today
+        - shift (optional, 1 or 2) default 1
+        - status (optional): filter by shift status (P/A/WO/H/HD)
+
+        Response: { date, shift, counts: {...}, data: [ { employee_id, employee_code, full_name, email, shift_status, attendance_id, record_exists } ] }
+        """
+        try:
+            supervisor = self._get_supervisor_employee(request)
+            if not supervisor:
+                return Response({'success': False, 'error': 'Supervisor record not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            team_members = self._get_team_members(supervisor)
+
+            date_str = request.query_params.get('date')
+            shift = int(request.query_params.get('shift', 1))
+            status_filter = request.query_params.get('status')
+
+            # parse date
+            if date_str:
+                try:
+                    target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+                except Exception:
+                    return Response({'success': False, 'error': 'Invalid date format. Use YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                target_date = timezone.now().date()
+
+            # Preload attendance rows for the team on that date
+            date_field = Attendance._meta.get_field('date')
+            if isinstance(date_field, models.DateTimeField):
+                attendance_qs = Attendance.objects.filter(employee__in=team_members).filter(Q(date__date=target_date) | Q(date=target_date))
+            else:
+                attendance_qs = Attendance.objects.filter(employee__in=team_members, date=target_date)
+
+            # Build lookup
+            attendance_map = {a.employee_id: a for a in attendance_qs}
+
+            results = []
+            counts = {'present': 0, 'absent': 0, 'weekly_off': 0, 'holiday': 0, 'half_day': 0, 'no_record': 0}
+
+            for emp in team_members.select_related('officialdetails'):
+                att = attendance_map.get(emp.id)
+                if att:
+                    if shift == 1:
+                        s = getattr(att, 'shift_1_status', None)
+                    else:
+                        s = getattr(att, 'shift_2_status', None)
+                    record_exists = True
+                    attendance_id = att.id
+                else:
+                    s = None
+                    record_exists = False
+                    attendance_id = None
+
+                # Normalize status for counting
+                if s == 'P':
+                    counts['present'] += 1
+                elif s == 'A':
+                    counts['absent'] += 1
+                elif s == 'WO':
+                    counts['weekly_off'] += 1
+                elif s == 'H':
+                    counts['holiday'] += 1
+                elif s == 'HD':
+                    counts['half_day'] += 1
+                else:
+                    if not record_exists:
+                        counts['no_record'] += 1
+
+                rec = {
+                    'employee_id': emp.id,
+                    'employee_code': emp.employee_code,
+                    'full_name': emp.full_name,
+                    'email': emp.email,
+                    'shift_status': s,
+                    'attendance_id': attendance_id,
+                    'record_exists': record_exists
+                }
+
+                # Apply optional status filter
+                if status_filter:
+                    if not s or s != status_filter:
+                        continue
+
+                results.append(rec)
+
+            return Response({'success': True, 'date': str(target_date), 'shift': shift, 'counts': counts, 'data': results}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['put'], url_path='shift-account')
+    def update_shift_account(self, request):
+        """
+        Update a single employee's shift status for a date.
+
+        Request body:
+        { "employee_id": 1, "date": "2024-10-07", "shift": 1, "status": "P" }
+        """
+        try:
+            supervisor = self._get_supervisor_employee(request)
+            if not supervisor:
+                return Response({'success': False, 'error': 'Supervisor record not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            employee_id = request.data.get('employee_id')
+            date_str = request.data.get('date')
+            shift = int(request.data.get('shift', 1))
+            status_code = request.data.get('status')
+
+            if not all([employee_id, date_str, status_code]):
+                return Response({'success': False, 'error': 'employee_id, date and status are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Verify team membership
+            team_members = self._get_team_members(supervisor)
+            employee = team_members.filter(id=employee_id).first()
+            if not employee:
+                return Response({'success': False, 'error': 'Employee not found in your team'}, status=status.HTTP_404_NOT_FOUND)
+
+            try:
+                date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except Exception:
+                return Response({'success': False, 'error': 'Invalid date format. Use YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Find or create attendance
+            attendance, created = Attendance.objects.get_or_create(employee=employee, date=date_obj, defaults={'shift_1_status': None, 'shift_2_status': None})
+
+            if shift == 1:
+                attendance.shift_1_status = status_code
+            else:
+                attendance.shift_2_status = status_code
+
+            attendance.save()
+
+            return Response({'success': True, 'message': 'Shift status updated', 'data': AttendanceSerializer(attendance).data}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['post'], url_path='bulk-mark-team-attendance')
     def bulk_mark_team_attendance(self, request):
@@ -397,10 +585,11 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
                         })
                         continue
                     
+                    # Mark full-day status by setting both shift status fields
                     attendance, created = Attendance.objects.update_or_create(
                         employee=employee,
                         date=date_obj,
-                        defaults={'status': record['status']}
+                        defaults={'shift_1_status': record['status'], 'shift_2_status': record['status']}
                     )
                     if created:
                         created_count += 1
@@ -479,11 +668,11 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
                 emp_attendance = attendance_qs.filter(employee_id=emp_id)
                 
                 stats = {
-                    'present': emp_attendance.filter(status='P').count(),
-                    'absent': emp_attendance.filter(status='A').count(),
-                    'weekly_off': emp_attendance.filter(status='WO').count(),
-                    'holiday': emp_attendance.filter(status='H').count(),
-                    'half_day': emp_attendance.filter(status='HD').count(),
+                    'present': emp_attendance.filter(Q(shift_1_status='P') | Q(shift_2_status='P')).count(),
+                    'absent': emp_attendance.filter(Q(shift_1_status='A') | Q(shift_2_status='A')).count(),
+                    'weekly_off': emp_attendance.filter(Q(shift_1_status='WO') | Q(shift_2_status='WO')).count(),
+                    'holiday': emp_attendance.filter(Q(shift_1_status='H') | Q(shift_2_status='H')).count(),
+                    'half_day': emp_attendance.filter(Q(shift_1_status='HD') | Q(shift_2_status='HD')).count(),
                 }
                 
                 total_working = stats['present'] + stats['absent'] + stats['half_day']
@@ -711,8 +900,8 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
                     date__lt=end_date
                 )
                 
-                present = attendance.filter(status='P').count()
-                absent = attendance.filter(status='A').count()
+                present = attendance.filter(Q(shift_1_status='P') | Q(shift_2_status='P')).count()
+                absent = attendance.filter(Q(shift_1_status='A') | Q(shift_2_status='A')).count()
                 total = present + absent
                 attendance_rate = (present / total * 100) if total > 0 else 0
                 
@@ -788,8 +977,8 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
                 date=today
             )
             
-            present_count = today_attendance.filter(status='P').count()
-            absent_count = today_attendance.filter(status='A').count()
+            present_count = today_attendance.filter(Q(shift_1_status='P') | Q(shift_2_status='P')).count()
+            absent_count = today_attendance.filter(Q(shift_1_status='A') | Q(shift_2_status='A')).count()
             marked_ids = today_attendance.values_list('employee_id', flat=True)
             not_marked_count = team_members.exclude(id__in=marked_ids).count()
             
@@ -797,12 +986,38 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
             members_status = []
             for member in team_members:
                 attendance = today_attendance.filter(employee=member).first()
+                if attendance:
+                    s1 = attendance.shift_1_status
+                    s2 = attendance.shift_2_status
+                    # Derive a human friendly status
+                    if s1 == 'P' and s2 == 'P':
+                        status_display = 'Present'
+                        status_code = 'P'
+                    elif s1 == 'A' and s2 == 'A':
+                        status_display = 'Absent'
+                        status_code = 'A'
+                    elif (s1 == 'P' and s2 == 'A') or (s1 == 'A' and s2 == 'P'):
+                        status_display = 'Half Day'
+                        status_code = 'HD'
+                    elif s1 == 'WO' or s2 == 'WO':
+                        status_display = 'Weekly Off'
+                        status_code = 'WO'
+                    elif s1 == 'H' or s2 == 'H':
+                        status_display = 'Holiday'
+                        status_code = 'H'
+                    else:
+                        status_display = 'Marked'
+                        status_code = f"{s1},{s2}"
+                else:
+                    status_display = 'Not Marked'
+                    status_code = None
+
                 members_status.append({
                     'employee_id': member.id,
                     'employee_code': member.employee_code,
                     'full_name': member.full_name,
-                    'status': attendance.get_status_display() if attendance else 'Not Marked',
-                    'status_code': attendance.status if attendance else None
+                    'status': status_display,
+                    'status_code': status_code
                 })
             
             return Response({
@@ -826,3 +1041,4 @@ class SupervisorDashboardViewSet(viewsets.ViewSet):
                 'success': False,
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

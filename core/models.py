@@ -181,8 +181,6 @@ class Employee(models.Model):
 
     ROLE_CHOICES = [
         ('Admin', 'Admin'),
-        ('Manager', 'Manager'),              # Main company manager
-        ('Sub-Manager', 'Sub-Manager'),      # Sub-company manager  
         ('HR', 'HR'),
         ('Supervisor', 'Supervisor'),
         ('Employee', 'Employee'),
@@ -206,6 +204,8 @@ class Employee(models.Model):
     sub_company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL, 
                                   related_name='sub_employees', 
                                   limit_choices_to={'is_main_company': False})
+    # Supervisors can be linked to multiple companies
+    supervised_companies = models.ManyToManyField(Company, blank=True, related_name='supervisors', help_text='Companies supervised by this supervisor')
 
     status = models.CharField(max_length=20, default='ACTIVE')  # ACTIVE, LEFT, TERMINATED
     photo = models.ImageField(upload_to='employee_photos/', blank=True, null=True)
@@ -362,7 +362,8 @@ class Attendance(models.Model):
 
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     date = models.DateField()
-    status = models.CharField(max_length=2, choices=STATUS_CHOICES)
+    shift_1_status = models.CharField(max_length=2, choices=STATUS_CHOICES, default='A')
+    shift_2_status = models.CharField(max_length=2, choices=STATUS_CHOICES, default='A')
     check_in_time = models.TimeField(null=True, blank=True)
     check_out_time = models.TimeField(null=True, blank=True)
     hours_worked = models.DurationField(null=True, blank=True)

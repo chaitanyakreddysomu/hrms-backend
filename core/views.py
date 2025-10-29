@@ -606,6 +606,33 @@ class AuthViewSet(viewsets.ViewSet):
                 'sub_company': sub_company_data,
                 'all_main_companies': CompanySerializer(main_companies, many=True).data
             }
+
+            # Add supervised companies list and cache it for supervisors so frontend can switch
+            try:
+                supervised_companies = []
+                can_switch = False
+                # If employee object exists and has supervised_companies M2M
+                if employee is not None and hasattr(employee, 'supervised_companies'):
+                    supervised_qs = employee.supervised_companies.all()
+                    if supervised_qs.exists():
+                        supervised_companies = CompanySerializer(supervised_qs, many=True).data
+                        can_switch = supervised_qs.count() > 1
+
+                        # Cache the supervised company ids for quick retrieval (24h)
+                        try:
+                            cache_key = f"user_companies_{user.id}"
+                            cache.set(cache_key, [c.id for c in supervised_qs], timeout=24*3600)
+                        except Exception:
+                            # caching should not block login
+                            pass
+
+                # Attach to response
+                response_data['supervised_companies'] = supervised_companies
+                response_data['can_switch_company'] = can_switch
+            except Exception:
+                # non-fatal; keep login response working
+                response_data['supervised_companies'] = []
+                response_data['can_switch_company'] = False
             
             logger.info(f"Successful login for username: {username_or_email}")
             return Response(response_data)
@@ -702,6 +729,107 @@ class AuthViewSet(viewsets.ViewSet):
                 'error': 'Failed to fetch profile',
                 'details': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated], url_path='switch-company')
+    def switch_company(self, request):
+        """
+        Switch active company for the authenticated user by returning new JWT tokens
+        that include an `active_company` claim. This avoids server-side cache and
+        relies on bearer tokens.
+
+        Request body: { "company_id": 123 }
+
+        Response: { success, active_company, access_token, refresh_token }
+        """
+        try:
+            user = request.user
+            emp = getattr(user, 'employee', None)
+
+            # If no direct relation (user.employee), try other reasonable lookups
+            if not emp:
+                try:
+                    # Try Employee linked by user_id (common OneToOneField naming)
+                    emp = Employee.objects.filter(user_id=getattr(user, 'id', None)).first()
+                except Exception:
+                    emp = None
+
+            if not emp and getattr(user, 'email', None):
+                try:
+                    # Fallback: match by email
+                    emp = Employee.objects.filter(email=user.email).first()
+                except Exception:
+                    emp = None
+
+            # Allow staff/admin to provide an employee id to act on behalf of (explicit)
+            if not emp:
+                supplied_emp = (request.data.get('employee_id') or request.data.get('supervisor_id') or
+                                request.query_params.get('employee_id'))
+                if supplied_emp and (getattr(user, 'is_staff', False) or getattr(user, 'is_superuser', False)):
+                    try:
+                        emp = Employee.objects.filter(id=int(supplied_emp)).first()
+                    except Exception:
+                        emp = None
+
+            if not emp:
+                return Response({'success': False, 'error': 'Employee profile required. Ensure the authenticated user has a linked Employee record, or call this endpoint with employee_id when using staff credentials.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            cid = request.data.get('company_id') or request.query_params.get('company_id')
+            if not cid:
+                return Response({'success': False, 'error': 'company_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                cid_int = int(cid)
+            except Exception:
+                return Response({'success': False, 'error': 'invalid company_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Validate authorization: user must be allowed for this company
+            authorized = False
+            try:
+                if hasattr(emp, 'supervised_companies') and emp.supervised_companies.filter(id=cid_int).exists():
+                    authorized = True
+                if getattr(emp, 'main_company_id', None) == cid_int:
+                    authorized = True
+                if getattr(emp, 'sub_company_id', None) == cid_int:
+                    authorized = True
+            except Exception:
+                # fallback to not authorized
+                authorized = False
+
+            if not authorized:
+                return Response({'success': False, 'error': 'not authorized for this company'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Generate new tokens with active_company claim
+            refresh = RefreshToken.for_user(user)
+            # attach claim to refresh so access inherits it
+            try:
+                refresh['active_company'] = cid_int
+            except Exception:
+                # some token backends may restrict custom claims; ignore if not allowed
+                pass
+
+            access = refresh.access_token
+            try:
+                access['active_company'] = cid_int
+            except Exception:
+                pass
+
+            # Return serialized company info along with tokens
+            try:
+                company = Company.objects.get(id=cid_int)
+                company_data = CompanySerializer(company).data
+            except Company.DoesNotExist:
+                return Response({'success': False, 'error': 'Company not found'}, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({
+                'success': True,
+                'message': 'Active company switched (token updated)',
+                'active_company': company_data,
+                'access_token': str(access),
+                'refresh_token': str(refresh)
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({'success': False, 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
             
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -1307,22 +1435,19 @@ class AttendanceViewSet(viewsets.ModelViewSet):
                 date__month=month,
                 date__year=year
             )
-            
             overtime_records = OvertimeRecord.objects.filter(
                 employee=employee,
                 date__month=month,
                 date__year=year
             )
-            
             total_days = calendar.monthrange(int(year), int(month))[1]
-            present_days = attendance_records.filter(status='P').count()
-            absent_days = attendance_records.filter(status='A').count()
-            holidays = attendance_records.filter(status='H').count()
-            weekly_offs = attendance_records.filter(status='WO').count()
+            present_days = attendance_records.filter(Q(shift_1_status='P') | Q(shift_2_status='P')).count()
+            absent_days = attendance_records.filter(Q(shift_1_status='A') | Q(shift_2_status='A')).count()
+            holidays = attendance_records.filter(Q(shift_1_status='H') | Q(shift_2_status='H')).count()
+            weekly_offs = attendance_records.filter(Q(shift_1_status='WO') | Q(shift_2_status='WO')).count()
             overtime_hours = overtime_records.aggregate(
                 total=Sum('hours')
             )['total'] or 0
-            
             summary_data.append({
                 'employee_id': employee.id,
                 'employee_name': employee.full_name,
@@ -2832,6 +2957,43 @@ def create_employee_for_subcompany(request):
             'employee': EmployeeSerializer(new_employee).data,
             'sub_company': CompanySerializer(target_sub_company).data
         }
+        # --- Auto-assign supervisor when there is exactly one active supervisor for the sub-company ---
+        try:
+            # Supervisors considered if role='Supervisor' and active, and either explicitly supervise the company
+            # via supervised_companies M2M or are assigned to the same sub_company
+            supervisors_qs = Employee.objects.filter(
+                role='Supervisor',
+                status='ACTIVE'
+            ).filter(
+                Q(supervised_companies=target_sub_company) | Q(sub_company=target_sub_company)
+            ).distinct()
+
+            if supervisors_qs.count() == 1:
+                sup = supervisors_qs.first()
+                # Create or update OfficialDetails for the new employee to set supervisor_name
+                # Use defaults for required OfficialDetails fields if not provided in payload
+                official_payload = request.data.get('employee_data', {}).get('official_details', {}) or {}
+                od_defaults = {
+                    'date_of_joining': official_payload.get('date_of_joining', timezone.now().date()),
+                    'department': official_payload.get('department', 'Unassigned'),
+                    'designation': official_payload.get('designation', 'Employee'),
+                    'location': official_payload.get('location', 'N/A'),
+                    'supervisor_name': sup.full_name,
+                    'salary_type': official_payload.get('salary_type', 'MONTHLY')
+                }
+
+                from .models import OfficialDetails
+                OfficialDetails.objects.update_or_create(employee=new_employee, defaults=od_defaults)
+
+                # Include info in response
+                response_data['auto_assigned_supervisor'] = {
+                    'id': sup.id,
+                    'employee_code': sup.employee_code,
+                    'full_name': sup.full_name
+                }
+        except Exception:
+            # Non-fatal: don't block employee creation if auto-assign fails
+            pass
         
         if user_account_data:
             response_data['user_account'] = user_account_data
@@ -2891,6 +3053,108 @@ def _create_user_account_for_employee(employee, password, role):
     user.groups.add(group)
     
     return user
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, CanCreateEmployeePermission])
+def assign_supervisor(request):
+    """
+    Assign or change the supervisor for an employee.
+
+    Request body:
+    {
+        "employee_id": 123,
+        "supervisor_id": 456,
+        // optional official details fields to keep required fields satisfied
+        "official_details": {
+            "date_of_joining": "2025-10-01",
+            "department": "Sales",
+            "designation": "Executive",
+            "location": "City",
+            "salary_type": "MONTHLY"
+        }
+    }
+    """
+    try:
+        emp_id = request.data.get('employee_id')
+        sup_id = request.data.get('supervisor_id')
+
+        if not emp_id or not sup_id:
+            return Response({'error': 'employee_id and supervisor_id are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            emp = Employee.objects.get(id=emp_id)
+            sup = Employee.objects.get(id=sup_id, role='Supervisor')
+        except Employee.DoesNotExist:
+            return Response({'error': 'Employee or Supervisor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        official_payload = request.data.get('official_details', {}) or {}
+        od_defaults = {
+            'date_of_joining': official_payload.get('date_of_joining', timezone.now().date()),
+            'department': official_payload.get('department', getattr(emp.officialdetails, 'department', 'Unassigned') if hasattr(emp, 'officialdetails') else 'Unassigned'),
+            'designation': official_payload.get('designation', getattr(emp.officialdetails, 'designation', 'Employee') if hasattr(emp, 'officialdetails') else 'Employee'),
+            'location': official_payload.get('location', getattr(emp.officialdetails, 'location', 'N/A') if hasattr(emp, 'officialdetails') else 'N/A'),
+            'supervisor_name': sup.full_name,
+            'salary_type': official_payload.get('salary_type', getattr(emp.officialdetails, 'salary_type', 'MONTHLY') if hasattr(emp, 'officialdetails') else 'MONTHLY')
+        }
+
+        OfficialDetails.objects.update_or_create(employee=emp, defaults=od_defaults)
+
+        return Response({'success': True, 'message': 'Supervisor assigned'}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated, CanCreateEmployeePermission])
+def manage_supervisor_companies(request):
+    """
+    Add or remove a sub-company to/from a supervisor's `supervised_companies` M2M.
+
+    Request body:
+    {
+        "supervisor_id": 456,
+        "company_id": 27,
+        "action": "add"   # or "remove" (defaults to add)
+    }
+
+    Only users with CanCreateEmployeePermission (Admin/Manager/Sub-Manager/HR/Supervisor) can call.
+    """
+    try:
+        supervisor_id = request.data.get('supervisor_id')
+        company_id = request.data.get('company_id')
+        action = (request.data.get('action') or 'add').lower()
+
+        if not supervisor_id or not company_id:
+            return Response({'error': 'supervisor_id and company_id are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            supervisor = Employee.objects.get(id=supervisor_id, role='Supervisor')
+        except Employee.DoesNotExist:
+            return Response({'error': 'Supervisor not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            company = Company.objects.get(id=company_id)
+        except Company.DoesNotExist:
+            return Response({'error': 'Company not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if action == 'add':
+            supervisor.supervised_companies.add(company)
+            msg = 'Company added to supervisor'
+        elif action == 'remove':
+            supervisor.supervised_companies.remove(company)
+            msg = 'Company removed from supervisor'
+        else:
+            return Response({'error': 'Invalid action. Use "add" or "remove".'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Return updated list of supervised companies
+        companies = supervisor.supervised_companies.all()
+        companies_data = [CompanySerializer(c).data for c in companies]
+
+        return Response({'success': True, 'message': msg, 'supervised_companies': companies_data}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
