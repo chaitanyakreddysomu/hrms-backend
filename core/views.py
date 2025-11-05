@@ -52,7 +52,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.http import HttpResponseBadRequest
 from razorpay.errors import SignatureVerificationError
-client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+#client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 from django.http import StreamingHttpResponse
 import pytz
 from datetime import datetime, timedelta
