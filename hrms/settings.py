@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()  # loads variables from .env into os.environ
-
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
