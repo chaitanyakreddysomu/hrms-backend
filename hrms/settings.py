@@ -6,7 +6,8 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()  # loads variables from .env into os.environ
-DEBUG = os.getenv("DEBUG", "False") == "True"
+
+DEBUG=True
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -72,18 +73,40 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'hrms.wsgi.application'
+# test
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'hrms_dev_91q0',
+#         'USER': 'hrms_dev_91q0_user',
+#         'PASSWORD': 'InIQXkg0mNUQuRrMrqTPjbfcuyAMc9Ee',
+#         'HOST': 'dpg-d45nqruuk2gs73cmgn90-a.oregon-postgres.render.com',
+#         'PORT': '5432',
+#     }
+# }
 
-
+# main
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'NAME': 'hrms_dev_7gpj',
+        'USER': 'hrms_admin',
+        'PASSWORD': '0JHxTlQTHD4POkp2upQQ3n5oz0SD5mw1',
+        'HOST': 'dpg-d398h57fte5s73cktr0g-a.oregon-postgres.render.com',
+        'PORT': '5432',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('DB_USER'),
+#         'PASSWORD': os.getenv('DB_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT', '5432'),
+#     }
+# }
 
 # Cache setup (using default local memory or Redis in production)
 CACHES = {
@@ -110,17 +133,7 @@ REST_FRAMEWORK = {
 }
 
 # CORS
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:8080",
-    "http://127.0.0.1:8081",
-    "http://localhost:8081",
-    "http://localhost:8080",
-    "https://www.incirclejobs.com",
-    "https://exam.incirclejobs.com",
-    "https://incirclejobs.com",
-]
+
 
 # Media files
 MEDIA_URL = '/media/'
@@ -273,12 +286,15 @@ SECURE_HSTS_PRELOAD = True
 
 # CORS Configuration (if using React/Vue frontend)
 CORS_ALLOW_ALL_ORIGINS = DEBUG  # Only for development
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React development server
-    "http://127.0.0.1:3000",
-    "https://your-frontend-domain.com",  # Production frontend
-]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:8080",
+    "http://127.0.0.1:8081",
+    "http://localhost:8081",
+    "http://localhost:8080"
+]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = [
     'accept',
@@ -443,4 +459,3 @@ else:
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
-    
