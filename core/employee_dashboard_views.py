@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.http import FileResponse, HttpResponse
 from datetime import datetime, timedelta
 import calendar
+from datetime import date
 
 from .models import (
     Employee, OfficialDetails, IdentityDocument, BankDetails,
@@ -59,7 +60,7 @@ class EmployeeDashboardViewSet(viewsets.ViewSet):
         Returns: Present days, absent days, OT hours, and take-home salary for current month
         """
         try:
-            # Get employee by username or email
+            # Get employee
             employee = Employee.objects.filter(
                 Q(employee_code=request.user.username) | Q(email=request.user.email)
             ).first()
@@ -70,37 +71,50 @@ class EmployeeDashboardViewSet(viewsets.ViewSet):
                     status=status.HTTP_404_NOT_FOUND
                 )
             
-            # Get current month and year
+            # Current month and year
             now = timezone.now()
             current_month = now.month
             current_year = now.year
-            
-            # Calculate attendance stats for current month
+
+            # Fetch attendance for current month
             attendance_records = Attendance.objects.filter(
                 employee=employee,
-                date__month=current_month,
-                date__year=current_year
+                date__year=current_year,
+                date__month=current_month
             )
-            
-            # Count days by checking both shift status fields
-            present_days = attendance_records.filter(Q(shift_1_status='P') | Q(shift_2_status='P')).count()
-            absent_days = attendance_records.filter(Q(shift_1_status='A') | Q(shift_2_status='A')).count()
-            half_days = attendance_records.filter(Q(shift_1_status='HD') | Q(shift_2_status='HD')).count()
-            
+
+            present_days = 0
+            absent_days = 0
+            half_days = 0
+
+            # Calculate based on both shifts (just like attendance_calendar)
+            for record in attendance_records:
+                day_name = record.date.strftime("%A")
+                shift_1 = record.shift_1_status
+                shift_2 = record.shift_2_status
+
+                # Skip Sundays or mark separately if needed
+                if day_name.lower() == "sunday":
+                    continue
+
+                if shift_1 == "P" and shift_2 == "P":
+                    present_days += 1
+                elif shift_1 == "A" and shift_2 == "A":
+                    absent_days += 1
+                elif (shift_1 == "P" and shift_2 == "A") or (shift_1 == "A" and shift_2 == "P"):
+                    half_days += 1
+
             # Calculate OT hours for current month
             ot_hours = OvertimeRecord.objects.filter(
                 employee=employee,
                 date__month=current_month,
                 date__year=current_year
             ).aggregate(total_hours=Sum('hours'))['total_hours'] or 0
-            
+
             # Get latest payslip for take-home salary
-            latest_payslip = Payslip.objects.filter(
-                employee=employee
-            ).order_by('-year', '-month').first()
-            
+            latest_payslip = Payslip.objects.filter(employee=employee).order_by('-year', '-month').first()
             take_home_salary = latest_payslip.net_salary if latest_payslip else 0
-            
+
             stats = {
                 "employee_name": employee.full_name,
                 "employee_code": employee.employee_code,
@@ -112,15 +126,14 @@ class EmployeeDashboardViewSet(viewsets.ViewSet):
                 "take_home_salary": float(take_home_salary),
                 "current_month": now.strftime("%B %Y")
             }
-            
+
             return Response(stats, status=status.HTTP_200_OK)
-            
+
         except Exception as e:
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-    
+            )   
     @action(detail=False, methods=['get'], url_path='notifications')
     def recent_notifications(self, request):
         """
@@ -1001,74 +1014,95 @@ class EmployeeAttendanceViewSet(viewsets.ViewSet):
     Provides attendance calendar, summary, and overtime details
     """
     permission_classes = [IsAuthenticated]
-    
     @action(detail=False, methods=['get'], url_path='calendar')
     def attendance_calendar(self, request):
         """
         GET /api/employee-attendance/calendar/
         Returns: Monthly attendance calendar
-        Query params: ?year=2024&month=12
+        Query params: ?year=2025&month=11
         """
         try:
             employee = Employee.objects.filter(
                 Q(employee_code=request.user.username) | Q(email=request.user.email)
             ).first()
-            
+
             if not employee:
                 return Response(
                     {"error": "Employee profile not found"},
                     status=status.HTTP_404_NOT_FOUND
                 )
-            
-            # Get year and month from query params or use current
+
+            # Get year/month from query params or use current
             now = timezone.now()
             year = int(request.query_params.get('year', now.year))
             month = int(request.query_params.get('month', now.month))
-            
+
             # Get attendance records for the month
             attendance_records = Attendance.objects.filter(
                 employee=employee,
                 date__year=year,
                 date__month=month
             ).order_by('date')
-            
-            # Create calendar data with shift-1, shift-2, and status_display
+
+            # Create a lookup for faster access
+            record_map = {record.date: record for record in attendance_records}
+
+            # Get total days in the month
+            _, total_days = calendar.monthrange(year, month)
+
             calendar_data = []
-            for record in attendance_records:
-                day_name = record.date.strftime("%A")
-                shift_1 = record.shift_1_status
-                shift_2 = record.shift_2_status
-                # status_display logic
-                if day_name.lower() == 'sunday':
-                    status_display = 'sunday'
-                elif shift_1 == 'P' and shift_2 == 'P':
-                    status_display = 'present'
-                elif shift_1 == 'A' and shift_2 == 'A':
-                    status_display = ''
-                elif (shift_1 == 'P' and shift_2 == 'A') or (shift_1 == 'A' and shift_2 == 'P'):
-                    status_display = 'half day'
-                else:
-                    status_display = ''
+            for day in range(1, total_days + 1):
+                current_date = date(year, month, day)
+                day_name = current_date.strftime("%A")
+
+                # Default values
+                shift_1 = "-"
+                shift_2 = "-"
+                status_display = "-"
+
+                # If Sunday — mark as weekend
+                if day_name.lower() == "sunday":
+                    status_display = "Weekend"
+
+                # If record exists, override defaults
+                if current_date in record_map:
+                    record = record_map[current_date]
+                    shift_1 = record.shift_1_status or "-"
+                    shift_2 = record.shift_2_status or "-"
+
+                    # Apply logic
+                    if day_name.lower() == "sunday":
+                        status_display = "Weekend"
+                    elif shift_1 == "P" and shift_2 == "P":
+                        status_display = "Present"
+                    elif shift_1 == "A" and shift_2 == "A":
+                        status_display = "Absent"
+                    elif (shift_1 == "P" and shift_2 == "A") or (shift_1 == "A" and shift_2 == "P"):
+                        status_display = "Half Day"
+                    else:
+                        status_display = "-"
+
                 calendar_data.append({
-                    "date": record.date,
+                    "date": current_date,
                     "day": day_name,
                     "shift-1": shift_1,
                     "shift-2": shift_2,
                     "status_display": status_display,
                 })
+
             return Response({
                 "year": year,
                 "month": month,
                 "month_name": calendar.month_name[month],
                 "attendance": calendar_data
             }, status=status.HTTP_200_OK)
-            
+
         except Exception as e:
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-    
+            )   
+            
     @action(detail=False, methods=['get'], url_path='summary')
     def attendance_summary(self, request):
         """
