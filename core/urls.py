@@ -94,6 +94,8 @@ router.register(r'manager-dashboard', manager_dashboard_views.ManagerDashboardVi
 # Sub-Manager Dashboard ViewSet for Sub-Company Management
 from . import submanager_dashboard_views
 router.register(r'sub-manager-dashboard', submanager_dashboard_views.SubManagerDashboardViewSet, basename='sub-manager-dashboard')
+from .views import ComplaintViewSet
+router.register(r'complaints', ComplaintViewSet, basename='complaints')
 
 admin_setup_urlpatterns = [
     path('api/admin/status/', views.check_system_status, name='admin-status'),

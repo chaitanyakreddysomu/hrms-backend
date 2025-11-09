@@ -396,6 +396,34 @@ class Document(models.Model):
     class Meta:
         db_table = 'Document'
 
+
+class Complaint(models.Model):
+    """Employee complaints/complaint box entries"""
+    STATUS_CHOICES = [
+        ('under_review', 'Under Review'),
+        ('resolved', 'Resolved'),
+    ]
+
+    subject = models.CharField(max_length=255)
+    details = models.TextField()
+    # link to employee if available
+    employee = models.ForeignKey('Employee', null=True, blank=True, on_delete=models.SET_NULL, related_name='complaints')
+    # store snapshot of employee info to avoid strict dependency
+    employee_name = models.CharField(max_length=200)
+    employee_email = models.EmailField()
+    employee_id_text = models.CharField(max_length=50, null=True, blank=True)
+
+    date_of_complaint = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='under_review')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'complaint'
+        ordering = ['-date_of_complaint']
+
+    def __str__(self):
+        return f"Complaint({self.id}) - {self.subject} - {self.employee_name}"
+
 class Report(models.Model):
     REPORT_TYPE_CHOICES = [
         ('SALARY_STATEMENT', 'Salary Statement'),

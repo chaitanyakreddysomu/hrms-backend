@@ -52,7 +52,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.http import HttpResponseBadRequest
 from razorpay.errors import SignatureVerificationError
-#client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+# client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
 from django.http import StreamingHttpResponse
 import pytz
 from datetime import datetime, timedelta
@@ -1532,6 +1532,128 @@ class SalaryStructureViewSet(viewsets.ModelViewSet):
             return Response({
                 'error': 'Salary structure not found for this employee'
             }, status=status.HTTP_404_NOT_FOUND)
+
+
+class ComplaintViewSet(viewsets.ModelViewSet):
+    """ViewSet to handle employee complaints (create, list, retrieve) and allow HR/Admin to update status."""
+    serializer_class = ComplaintSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Employees see only their complaints unless user is admin/hr which can see all
+        user = self.request.user
+        # find employee record if present
+        try:
+            employee = Employee.objects.filter(email=user.email).first()
+        except Exception:
+            employee = None
+
+        # If user is admin/hr (superuser, group membership, or employee.role), return all
+        if self._is_hr_or_admin(user):
+            return Complaint.objects.all()
+
+        # Regular employee: show only their complaints
+        if employee:
+            return Complaint.objects.filter(employee=employee)
+
+        # Fallback: filter by employee email snapshot
+        return Complaint.objects.filter(employee_email=user.email)
+
+    def _is_hr_or_admin(self, user):
+        """Return True if user is admin or HR. Checks superuser, Django groups, user.role, and Employee.role."""
+        try:
+            if user.is_superuser:
+                return True
+        except Exception:
+            pass
+
+        # Check Django groups (case-insensitive)
+        try:
+            if user.groups.filter(name__iexact='Admin').exists() or user.groups.filter(name__iexact='HR').exists():
+                return True
+        except Exception:
+            pass
+
+        # Check a role attribute on the user (if present)
+        try:
+            if getattr(user, 'role', None) and str(user.role).lower() in ['admin', 'hr']:
+                return True
+        except Exception:
+            pass
+
+        # Finally, check Employee.role if an Employee record exists
+        try:
+            emp = Employee.objects.filter(email=getattr(user, 'email', None)).first()
+            if emp and getattr(emp, 'role', None) and str(emp.role).lower() in ['admin', 'hr']:
+                return True
+        except Exception:
+            pass
+
+        return False
+
+    def perform_create(self, serializer):
+        # Attach employee snapshot when creating
+        request = self.request
+        user = request.user
+        employee = None
+        employee_name = None
+        employee_email = None
+        employee_id_text = None
+
+        try:
+            # Try to find linked Employee by user.email first
+            if getattr(user, 'email', None):
+                employee = Employee.objects.filter(email=user.email).first()
+        except Exception:
+            employee = None
+
+        if employee:
+            employee_name = employee.full_name
+            employee_email = employee.email
+            employee_id_text = getattr(employee, 'employee_code', None)
+            serializer.save(employee=employee, employee_name=employee_name, employee_email=employee_email, employee_id_text=employee_id_text)
+            return
+
+        # Fallback: try to decode JWT/Access token and extract claims (email/name)
+        try:
+            auth_header = request.META.get('HTTP_AUTHORIZATION', '')
+            parts = auth_header.split()
+            if len(parts) == 2 and parts[0].lower() == 'bearer':
+                token_str = parts[1]
+                from rest_framework_simplejwt.tokens import AccessToken
+                try:
+                    access = AccessToken(token_str)
+                    # common claim names: email, name, first_name, last_name
+                    employee_email = access.get('email') or access.get('user_email')
+                    employee_name = access.get('employee_name') or access.get('name') or (access.get('first_name') and access.get('last_name') and f"{access.get('first_name')} {access.get('last_name')}")
+                    employee_id_text = access.get('employee_id') or access.get('employee_code')
+                except Exception:
+                    employee_email = None
+        except Exception:
+            employee_email = None
+
+        # If we now have at least an email or name, save snapshot without Employee FK
+        if not employee_name:
+            employee_name = f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}".strip() or getattr(user, 'username', '')
+        if not employee_email:
+            employee_email = getattr(user, 'email', None)
+
+        serializer.save(employee=None, employee_name=employee_name, employee_email=employee_email, employee_id_text=employee_id_text)
+
+    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated])
+    def update_status(self, request, pk=None):
+        """HR/Admin can update the status of a complaint."""
+        user = request.user
+        if not self._is_hr_or_admin(user):
+            return Response({'error': 'permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+        complaint = self.get_object()
+        new_status = request.data.get('status')
+        if new_status not in dict(Complaint.STATUS_CHOICES).keys():
+            return Response({'error': 'invalid status'}, status=status.HTTP_400_BAD_REQUEST)
+        complaint.status = new_status
+        complaint.save()
+        return Response(ComplaintSerializer(complaint).data)
 
 class PayrollViewSet(viewsets.ViewSet):
     """Payroll processing endpoints"""

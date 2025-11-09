@@ -174,6 +174,20 @@ class ReportSerializer(serializers.ModelSerializer):
         model = Report
         fields = '__all__'
 
+
+class ComplaintSerializer(serializers.ModelSerializer):
+    """Serializer for Complaint model"""
+    # These fields are filled from the authenticated user / view and should not be required in the request body
+    employee = serializers.PrimaryKeyRelatedField(read_only=True)
+    employee_name = serializers.CharField(read_only=True)
+    employee_email = serializers.EmailField(read_only=True)
+    employee_id_text = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Complaint
+        fields = ['id', 'subject', 'details', 'employee', 'employee_name', 'employee_email', 'employee_id_text', 'date_of_complaint', 'status', 'updated_at']
+        read_only_fields = ['id', 'date_of_complaint', 'updated_at', 'employee', 'employee_name', 'employee_email', 'employee_id_text']
+
 # Detailed Employee Serializer with all related data
 class EmployeeDetailSerializer(serializers.ModelSerializer):
     official_details = OfficialDetailsSerializer(source='officialdetails', read_only=True)
