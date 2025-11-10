@@ -56,6 +56,7 @@ from razorpay.errors import SignatureVerificationError
 from django.http import StreamingHttpResponse
 import pytz
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 import tempfile
 import logging
@@ -1504,10 +1505,17 @@ class SalaryStructureViewSet(viewsets.ModelViewSet):
     
     def update(self, request, *args, **kwargs):
         """Update salary structure"""
+        user = request.user
+        if not (user.is_superuser or user.groups.filter(name__in=['HR', 'Admin']).exists()):
+            return Response({'error': 'permission denied'}, status=status.HTTP_403_FORBIDDEN)
         return super().update(request, *args, **kwargs)
     
     def partial_update(self, request, *args, **kwargs):
         """Partially update salary structure"""
+        # Only allow HR or Admin groups to update salary structure
+        user = request.user
+        if not (user.is_superuser or user.groups.filter(name__in=['HR', 'Admin']).exists()):
+            return Response({'error': 'permission denied'}, status=status.HTTP_403_FORBIDDEN)
         return super().partial_update(request, *args, **kwargs)
     
     def destroy(self, request, *args, **kwargs):
@@ -1532,6 +1540,39 @@ class SalaryStructureViewSet(viewsets.ModelViewSet):
             return Response({
                 'error': 'Salary structure not found for this employee'
             }, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['get'], url_path='hr/all', permission_classes=[IsAuthenticated])
+    def hr_all(self, request):
+        """HR/Admin: return all salary structures with employee snapshot. Requires HR/Admin group or superuser."""
+        user = request.user
+        if not (user.is_superuser or user.groups.filter(name__in=['HR', 'Admin']).exists()):
+            return Response({'error': 'permission denied'}, status=status.HTTP_403_FORBIDDEN)
+
+        queryset = self.get_queryset()
+        data = []
+        for s in queryset.select_related('employee'):
+            emp = s.employee
+            data.append({
+                'id': s.id,
+                'employee_id': emp.id if emp else None,
+                'employee_code': emp.employee_code if emp else None,
+                'employee_name': emp.full_name if emp else None,
+                'CTC': float(s.CTC),
+                'basic': float(s.basic),
+                'da': float(s.da),
+                'hra': float(s.hra),
+                'conveyance': float(s.conveyance),
+                'bonus': float(s.bonus),
+                'other_allowances': float(s.other_allowances),
+                'pf_deduction': float(s.pf_deduction),
+                'esi_deduction': float(s.esi_deduction),
+                'pt_deduction': float(s.pt_deduction),
+                'lwf_deduction': float(s.lwf_deduction),
+                'insurance': float(s.insurance),
+                'advance': float(s.advance)
+            })
+
+        return Response(data)
 
 
 class ComplaintViewSet(viewsets.ModelViewSet):
@@ -1727,6 +1768,173 @@ class PayrollViewSet(viewsets.ViewSet):
             return Response(PayslipSerializer(payslip).data)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['get'], url_path='salary-statement', permission_classes=[IsAuthenticated])
+    def salary_statement(self, request):
+        """Return a detailed salary statement for given employee/month/year.
+
+        Query params: employee_id, month, year, days_payable (optional), overtime_hours (optional)
+        Accessible to: the employee themself, HR group, Admin (superuser or Admin group)
+        """
+        emp_id = request.query_params.get('employee_id')
+        month = request.query_params.get('month')
+        year = request.query_params.get('year')
+        days_payable = request.query_params.get('days_payable')
+        overtime_hours = float(request.query_params.get('overtime_hours') or 0)
+
+        # month/year required
+        if not (month and year):
+            return Response({'error': 'month and year are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        month = int(month)
+        year = int(year)
+        days_in_month = calendar.monthrange(year, month)[1]
+        days_payable = int(days_payable) if days_payable else days_in_month
+        # Use Decimal for safe arithmetic with Decimal model fields
+        days_in_month_d = Decimal(days_in_month)
+        days_payable_d = Decimal(days_payable)
+        prorate = (days_payable_d / days_in_month_d)
+
+        user = request.user
+        is_hr_or_admin = user.is_superuser or user.groups.filter(name__in=['HR', 'Admin']).exists()
+
+        results = []
+
+        # If no employee_id provided:
+        if not emp_id:
+            # If admin/HR: return statements for all employees (basic list)
+            if is_hr_or_admin:
+                employees = Employee.objects.filter(status='ACTIVE')
+            else:
+                # Employee: infer employee from user's email
+                try:
+                    emp = Employee.objects.get(email=user.email)
+                    employees = [emp]
+                except Employee.DoesNotExist:
+                    return Response({'error': 'employee record not found for user'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            try:
+                employees = [Employee.objects.get(id=emp_id)]
+            except Employee.DoesNotExist:
+                return Response({'error': 'employee not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Build statement per employee
+        for emp in employees:
+            # Permission: employee can view only their own unless hr/admin
+            if not is_hr_or_admin and getattr(user, 'email', None) != emp.email:
+                continue
+
+            salary_structure = getattr(emp, 'salarystructure', None)
+            if not salary_structure:
+                # skip employees without salary structure
+                continue
+
+            # salary_structure fields are Decimal -> use Decimal arithmetic
+            earned_basic_d = (salary_structure.basic or Decimal('0')) * prorate
+            earned_da_d = (salary_structure.da or Decimal('0')) * prorate
+            earned_special_d = (salary_structure.other_allowances or Decimal('0')) * prorate
+            earned_hra_d = (salary_structure.hra or Decimal('0')) * prorate
+            earned_conveyance_d = (salary_structure.conveyance or Decimal('0')) * prorate
+            earned_bonus_d = (salary_structure.bonus or Decimal('0'))
+
+            overtime_amount_d = Decimal('0')
+            if overtime_hours > 0:
+                # convert overtime_hours to Decimal
+                overtime_hours_d = Decimal(str(overtime_hours))
+                hourly_rate_d = (salary_structure.basic + salary_structure.da) / (Decimal(days_in_month) * Decimal('8'))
+                overtime_amount_d = overtime_hours_d * hourly_rate_d * Decimal('2')
+
+            gross_earned_d = earned_basic_d + earned_da_d + earned_special_d + earned_hra_d + earned_conveyance_d + earned_bonus_d + overtime_amount_d
+
+            pf_d = earned_basic_d * Decimal('0.12')
+            esi_d = (gross_earned_d * Decimal('0.0175')) if gross_earned_d <= Decimal('25000') else Decimal('0')
+            pt_d = (salary_structure.pt_deduction or Decimal('0'))
+            lwf_d = (salary_structure.lwf_deduction or Decimal('0'))
+            canteen_d = Decimal('0')
+            total_deductions_d = pf_d + esi_d + pt_d + lwf_d + (salary_structure.insurance or Decimal('0')) + (salary_structure.advance or Decimal('0')) + canteen_d
+
+            take_home_d = gross_earned_d - total_deductions_d
+
+            # attach payslip download URL if present
+            payslip = Payslip.objects.filter(employee=emp, month=month, year=year).first()
+            pdf_url = None
+            if payslip and payslip.pdf_file:
+                try:
+                    pdf_url = request.build_absolute_uri(payslip.pdf_file.url)
+                except Exception:
+                    pdf_url = None
+
+            fixed = {
+                'Basic': float(salary_structure.basic or Decimal('0')),
+                'DA': float(salary_structure.da or Decimal('0')),
+                'Special Allowance': float(salary_structure.other_allowances or Decimal('0')),
+                'Leave with Wages': 0.0,
+                'Bonus': float(salary_structure.bonus or Decimal('0')),
+                'Gross Salary': float((salary_structure.basic or Decimal('0')) + (salary_structure.da or Decimal('0')) + (salary_structure.hra or Decimal('0')) + (salary_structure.conveyance or Decimal('0')) + (salary_structure.bonus or Decimal('0')) + (salary_structure.other_allowances or Decimal('0')))
+            }
+
+            # gather profile info from related models (if available)
+            try:
+                official = emp.officialdetails
+            except OfficialDetails.DoesNotExist:
+                official = None
+
+            try:
+                identity = emp.identitydocument
+            except IdentityDocument.DoesNotExist:
+                identity = None
+
+            profile = {
+                'emp_code': emp.employee_code,
+                'name': emp.full_name,
+                'gender': emp.get_gender_display() if hasattr(emp, 'get_gender_display') else emp.gender,
+                'designation': official.designation if official else None,
+                'department': official.department if official else None,
+                'dob': emp.date_of_birth.isoformat() if emp.date_of_birth else None,
+                'esi_number': identity.esi_number if identity else None,
+                'uan_number': identity.pf_uan_number if identity else None,
+                'date_of_joining': official.date_of_joining.isoformat() if official and official.date_of_joining else None
+            }
+
+            payload = {
+                'employee_id': emp.id,
+                'month': month,
+                'year': year,
+                'profile': profile,
+                'fixed': {k: round(v, 2) for k, v in fixed.items()},
+                'earned': {
+                    'Days Payable': days_payable,
+                    'Extra Days': max(0, days_payable - days_in_month),
+                    'Basic': round(float(earned_basic_d), 2),
+                    'DA': round(float(earned_da_d), 2),
+                    'Special Allowance': round(float(earned_special_d), 2),
+                    'Leave with Wages': 0.0,
+                    'Bonus': round(float(earned_bonus_d), 2),
+                    'Other Allowance (NHF Days)': 0.0,
+                    'Attendance Bonus': 0.0,
+                    'Gross': round(float(gross_earned_d), 2)
+                },
+                'deductions': {
+                    'ESI Deduction': round(float(esi_d), 2),
+                    'PF Deduction': round(float(pf_d), 2),
+                    'PT': round(float(pt_d), 2),
+                    'LWF': round(float(lwf_d), 2),
+                    'Canteen Deduction': round(float(canteen_d), 2)
+                },
+                'gross': round(float(gross_earned_d), 2),
+                'total_deductions': round(float(total_deductions_d), 2),
+                'take_home': round(float(take_home_d), 2),
+                'payslip_download_url': pdf_url
+            }
+
+            results.append(payload)
+
+        # If single employee result and the caller was not HR/Admin, return object instead of list
+        if len(results) == 1 and not is_hr_or_admin:
+            return Response(SalaryStatementDetailedSerializer(results[0]).data)
+
+        # For admin/HR or multi results, return the list
+        return Response(results)
     
     @action(detail=False, methods=['post'])
     def generate_invoice(self, request):

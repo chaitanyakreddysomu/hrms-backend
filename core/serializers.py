@@ -94,6 +94,16 @@ class ClientProfileSettingsSerializer(serializers.ModelSerializer):
 class EmployeeSerializer(serializers.ModelSerializer):
     main_company_name = serializers.CharField(source='main_company.name', read_only=True)
     sub_company_name = serializers.CharField(source='sub_company.name', read_only=True)
+    # Convenience/read-only fields for API consumers
+    emp_code = serializers.CharField(source='employee_code', read_only=True)
+    name = serializers.CharField(source='full_name', read_only=True)
+    gender_display = serializers.CharField(source='get_gender_display', read_only=True)
+    designation = serializers.CharField(source='officialdetails.designation', read_only=True)
+    department = serializers.CharField(source='officialdetails.department', read_only=True)
+    date_of_joining = serializers.DateField(source='officialdetails.date_of_joining', read_only=True)
+    dob = serializers.DateField(source='date_of_birth', read_only=True)
+    esi_number = serializers.CharField(source='identitydocument.esi_number', read_only=True)
+    uan_number = serializers.CharField(source='identitydocument.pf_uan_number', read_only=True)
     
     class Meta:
         model = Employee
@@ -197,6 +207,16 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
     documents = DocumentSerializer(many=True, read_only=True)
     main_company_name = serializers.CharField(source='main_company.name', read_only=True)
     sub_company_name = serializers.CharField(source='sub_company.name', read_only=True)
+    # Top-level convenience fields
+    emp_code = serializers.CharField(source='employee_code', read_only=True)
+    name = serializers.CharField(source='full_name', read_only=True)
+    gender_display = serializers.CharField(source='get_gender_display', read_only=True)
+    designation = serializers.CharField(source='officialdetails.designation', read_only=True)
+    department = serializers.CharField(source='officialdetails.department', read_only=True)
+    date_of_joining = serializers.DateField(source='officialdetails.date_of_joining', read_only=True)
+    dob = serializers.DateField(source='date_of_birth', read_only=True)
+    esi_number = serializers.CharField(source='identitydocument.esi_number', read_only=True)
+    uan_number = serializers.CharField(source='identitydocument.pf_uan_number', read_only=True)
     
     class Meta:
         model = Employee
@@ -219,6 +239,31 @@ class SalaryStatementSerializer(serializers.Serializer):
     days_in_month = serializers.IntegerField()
     days_payable = serializers.IntegerField()
     overtime_hours = serializers.DecimalField(max_digits=5, decimal_places=2, default=0)
+
+
+class SalaryStatementDetailedSerializer(serializers.Serializer):
+    """Detailed salary statement returned to frontend for display.
+
+    Fields intentionally mirror the sample provided by the user.
+    """
+    employee_id = serializers.IntegerField()
+    month = serializers.IntegerField()
+    year = serializers.IntegerField()
+
+    # Fixed / nominal structure
+    fixed = serializers.DictField(child=serializers.DecimalField(max_digits=12, decimal_places=2))
+
+    # Earned for the month
+    earned = serializers.DictField(child=serializers.DecimalField(max_digits=12, decimal_places=2))
+
+    # Deductions
+    deductions = serializers.DictField(child=serializers.DecimalField(max_digits=12, decimal_places=2))
+
+    gross = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total_deductions = serializers.DecimalField(max_digits=12, decimal_places=2)
+    take_home = serializers.DecimalField(max_digits=12, decimal_places=2)
+    # Profile summary to include employee details from profile endpoint
+    profile = serializers.DictField(child=serializers.CharField(allow_null=True), required=False)
 
 # Invoice Generation Serializer
 class InvoiceGenerationSerializer(serializers.Serializer):
